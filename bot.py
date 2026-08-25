@@ -105,7 +105,16 @@ def load_engines() -> list[Engine]:
     raw_cfg = os.environ.get("AI_CONFIG", "").strip()
     legacy = os.environ.get("GEMINI_API_KEY", "").strip()
     if raw_cfg:
-        cfg = json.loads(raw_cfg)
+        try:
+            cfg = json.loads(raw_cfg)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                f"AI_CONFIG معتبر نیست: {exc.msg} — خط {exc.lineno}، ستون {exc.colno}. "
+                "به بخش Secrets ریپو بروید و AI_CONFIG را اصلاح کنید. "
+                "خطاهای رایج: کامای جاافتاده یا اضافه، کوتیشن خمیده (” « ») به‌جای \"، "
+                "یا مقداری که داخل \"...\" گذاشته نشده. "
+                "راه آسان: فایل config-builder.html را در مرورگر باز کنید و JSON سالم بسازید."
+            ) from exc
         default_models = [str(m).strip() for m in cfg.get("gemini_models", DEFAULT_GEMINI_MODELS) if str(m).strip()]
         for entry in cfg.get("gemini", []):
             if isinstance(entry, dict):
@@ -124,7 +133,7 @@ def load_engines() -> list[Engine]:
     return engines
 
 
-ENGINES: list[Engine] = load_engines()  # در selftest/main بازخوانی می‌شود
+ENGINES: list[Engine] = []   # در main()/selftest() از AI_CONFIG خوانده می‌شود
 
 
 def load_state() -> dict:
@@ -741,7 +750,10 @@ def today_increment(state: dict) -> None:
 def main() -> int:
     global ENGINES
     ENGINES = load_engines()
-    log(f"🚀 شروع — کانال: {CHANNEL_ID} | کلیدهای AI: {len(ENGINES)} | نوع: "
+    n_gem = sum(1 for e in ENGINES if e.kind == "gemini")
+    n_oa = len(ENGINES) - n_gem
+    log(f"🚀 شروع — کانال: {CHANNEL_ID} | کلیدها: {len(ENGINES)} "
+        f"(جمینای×{n_gem} + OpenAI-سازگار×{n_oa}) | نوع: "
         + (FORCE_TYPE or "خودکار (وزنی)"))
 
     if not ENGINES:

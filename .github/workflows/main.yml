@@ -1,36 +1,32 @@
 name: Post to Telegram
 
 on:
-  # اجرای دستی از تب Actions (برای تست — سقف روزانه را نادیده می‌گیرد)
   workflow_dispatch:
     inputs:
       post_type:
-        description: 'نوع پست (auto = انتخاب خودکار وزنی)'
+        description: 'نوع پست'
         type: choice
         default: auto
-        options: [auto, news, tip, roadmap, tool]
+        options: [auto, news, trending, educational, inspirational, funny, tool, roadmap, tip]
       with_image:
         description: 'تصویر ساخته شود؟'
         type: boolean
         default: true
       force_post:
-        description: 'نادیده‌گرفتن سقف روزانه (پست الزامی)'
+        description: 'نادیده‌گرفتن سقف روزانه'
         type: boolean
         default: true
-      dry_run:
-        description: 'فقط تمرین: بدون ارسال به کانال و بدون AI'
-        type: boolean
-        default: false
+      post_style:
+        description: 'سبک پست'
+        type: choice
+        default: smart
+        options: [smart, scientific, news, educational, inspirational, funny, debate]
 
-  # ─── زمان‌بندی: هر ۳۰ دقیقه، ساعت ۳ تا ۲۰ UTC ───
-  # یعنی ~۶:۳۰ تا ۲۱:۰۰ به وقت تهران (۳۶ بازه در روز)
-  # خودِ ربات هر روز صبح یک هدف تصادفی بین ۲۰ تا ۳۰ پست انتخاب می‌کند
-  # و وقتی به آن رسید، اجراهای بعدی را رد می‌کند (تا پست اضافه نرود)
   schedule:
     - cron: "*/30 3-20 * * *"
 
 permissions:
-  contents: write   # برای ذخیره state (لینک‌های پست‌شده + شمارنده روزانه)
+  contents: write
 
 concurrency:
   group: telegram-post
@@ -41,35 +37,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: دریافت کد
-        uses: actions/checkout@v4
-
-      - name: نصب پایتون
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-
-      - name: نصب پیش‌نیازها
+      
+      - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: تولید و ارسال پست
+      
+      - name: Run bot
         env:
-          BOT_TOKEN:      ${{ secrets.BOT_TOKEN }}
-          AI_CONFIG:      ${{ secrets.AI_CONFIG }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}   # سازگاری قدیمی
-          CHANNEL_ID:     "@Bio_with_AI"
-          DAILY_MIN:      "20"
-          DAILY_MAX:      "30"
-          FORCE_TYPE:     ${{ inputs.post_type != 'auto' && inputs.post_type || '' }}
-          WITH_IMAGE:     ${{ inputs.with_image == false && '0' || '1' }}
-          FORCE_POST:     ${{ inputs.force_post && '1' || '0' }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          AI_CONFIG: ${{ secrets.AI_CONFIG }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CHANNEL_ID: "@Bio_with_AI"
+          DAILY_MIN: "25"
+          DAILY_MAX: "35"
+          FORCE_TYPE: ${{ inputs.post_type != 'auto' && inputs.post_type || '' }}
+          WITH_IMAGE: ${{ inputs.with_image == false && '0' || '1' }}
+          FORCE_POST: ${{ inputs.force_post && '1' || '0' }}
+          POST_STYLE: ${{ inputs.post_style || 'smart' }}
+          ENABLE_POLLS: "1"
+          ENABLE_BUTTONS: "1"
+          USE_TRENDING: "1"
         run: python bot.py ${{ inputs.dry_run && '--dry-run' || '' }}
-
-      - name: ذخیره وضعیت (ضدتکرار + شمارنده روزانه)
+      
+      - name: Save state
         if: always()
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A state/ 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "chore: update posted state" && git push)

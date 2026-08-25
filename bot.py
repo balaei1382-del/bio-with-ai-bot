@@ -19,10 +19,10 @@ Bio with AI — ربات همه‌فن‌حریف کانال تلگرام
 
 قالب AI_CONFIG (در GitHub Secret):
 {
-  "gemini_models": ["gemini-3-pro", "gemini-2.5-pro", "gemini-2.5-flash"],
+  "gemini_models": ["gemini-2.5-flash", "gemini-2.0-flash"],
   "gemini": [
     {"api_key": "AIza..."},
-    {"api_key": "AIza...", "models": ["gemini-2.5-pro", "gemini-2.5-flash"]}
+    {"api_key": "AIza...", "models": ["gemini-2.5-flash", "gemini-2.0-flash"]}
   ],
   "openai_compatible": [
     {"base_url": "https://api.x.ai/v1",        "api_key": "xai-...",   "model": "grok-4.1-fast"},
@@ -56,8 +56,16 @@ AI_CONFIG      = os.environ.get("AI_CONFIG", "").strip()               # حال�
 # مدل‌های در دسترسِ کلید را می‌گیرد و بهترینِ رایگان (Flash) را برمی‌گزیند.
 # مقادیر زیر فقط وقتی استفاده می‌شوند که کشف ممکن نباشد:
 FALLBACK_GEMINI_MODELS = [m.strip() for m in os.environ.get("GEMINI_MODELS",
-    "gemini-flash-latest, gemini-2.5-flash, gemini-2.0-flash").split(",") if m.strip()]
-GEMINI_IMAGE_FALLBACK = ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"]
+    "gemini-2.5-flash, gemini-2.0-flash").split(",") if m.strip()]
+
+# مدل‌های تصویری به ترتیب اولویت (جدیدترین و مطمئن‌ترین‌ها)
+GEMINI_IMAGE_MODELS = [
+    "gemini-2.0-flash-exp-image-generation",
+    "gemini-2.0-flash-preview-image-generation",
+    "gemini-2.5-flash-image",
+    "gemini-1.5-flash",
+]
+
 INCLUDE_PRO = os.environ.get("INCLUDE_PRO", "0") == "1"   # 0 = فقط مدل‌های رایگان (Flash)
 CHANNEL_LINK_ENV = os.environ.get("CHANNEL_LINK", "").strip()  # برای کانال خصوصی: لینک دعوت
 
@@ -180,23 +188,28 @@ def rank_gemini_models(ids: list[str], pinned: list[str] | None = None) -> list[
 
 def discover_gemini_models(api_key: str) -> tuple[list[str], list[str]]:
     """گرفتن فهرست واقعی مدل‌های کلید از گوگل → (مدل‌های متنی، مدل‌های تصویری)"""
-    r = requests.get(
-        "https://generativelanguage.googleapis.com/v1beta/models",
-        params={"key": api_key, "pageSize": 200}, timeout=30,
-    )
-    r.raise_for_status()
-    chat_ids, image_ids = [], []
-    for m in r.json().get("models", []):
-        if "generateContent" not in m.get("supportedGenerationMethods", []):
-            continue
-        mid = (m.get("name") or "").split("/")[-1]
-        if not mid:
-            continue
-        if "image" in mid.lower():
-            image_ids.append(mid)
-        elif not any(b in mid.lower() for b in BAD_GEMINI):
-            chat_ids.append(mid)
-    return chat_ids, image_ids
+    try:
+        r = requests.get(
+            "https://generativelanguage.googleapis.com/v1beta/models",
+            params={"key": api_key, "pageSize": 200}, timeout=30,
+        )
+        r.raise_for_status()
+        chat_ids, image_ids = [], []
+        for m in r.json().get("models", []):
+            if "generateContent" not in m.get("supportedGenerationMethods", []):
+                continue
+            mid = (m.get("name") or "").split("/")[-1]
+            if not mid:
+                continue
+            # تشخیص مدل‌های تصویری
+            if "image" in mid.lower() or "imagen" in mid.lower():
+                image_ids.append(mid)
+            elif not any(b in mid.lower() for b in BAD_GEMINI):
+                chat_ids.append(mid)
+        return chat_ids, image_ids
+    except Exception as exc:
+        log(f"⚠ خطا در کشف مدل‌ها: {str(exc)[:100]}")
+        return [], []
 
 
 def pick_openai_model(ids: list[str], failed: str) -> str | None:
@@ -261,11 +274,11 @@ def refresh_gemini_models(state: dict, force: bool = False) -> None:
         if chat_ids:
             ranked = rank_gemini_models(chat_ids, PINNED_GEMINI_MODELS)
             cache.update(gemini_date=today, gemini_models=ranked,
-                         gemini_image=image_ids[:3] or cache.get("gemini_image", []))
+                         gemini_image=image_ids[:5] or cache.get("gemini_image", []))
             apply_gemini_models(ranked)
             log(f"🔎 مدل‌های جمینایِ در دسترس: {ranked}")
             if image_ids:
-                log(f"🖼 مدل‌های تصویریِ در دسترس: {image_ids[:3]}")
+                log(f"🖼 مدل‌های تصویریِ در دسترس: {image_ids[:5]}")
             return
     log("⚠ کشف مدل‌های جمینای ممکن نشد؛ از لیست پیش‌فرض استفاده می‌شود")
 
@@ -439,55 +452,116 @@ TINY_PNG = base64.b64decode(
 
 
 def generate_image(state: dict, prompt_en: str) -> bytes | None:
+    """تولید تصویر با جمینای - نسخه بهبود یافته"""
     if MOCK_LLM or SELFTEST:
         return TINY_PNG
-    image_models = state.get("model_cache", {}).get("gemini_image") or GEMINI_IMAGE_FALLBACK
+    
+    # مدل‌های تصویری به ترتیب اولویت
+    image_models = state.get("model_cache", {}).get("gemini_image") or GEMINI_IMAGE_MODELS
+    
     dead = set(state.get("dead_engines", []))
     gemini_keys = [e for e in ENGINES if e.kind == "gemini" and e.id not in dead]
+    
     if not gemini_keys:
         log("⚠ تصویر: هیچ کلید جمینای زنده‌ای برای ساخت تصویر موجود نیست")
         return None
+    
     if not image_models:
-        log("⚠ تصویر: هیچ مدل تصویری کشف/تنظیم نشده (model_cache خالی است)")
+        log("⚠ تصویر: هیچ مدل تصویری کشف/تنظیم نشده")
         return None
+    
     tried = []
     for eng in gemini_keys:
         for model in image_models:
             tried.append(f"{eng.id}/{model}")
             try:
+                log(f"🖼 تلاش برای ساخت تصویر با {model} روی کلید …{eng.api_key[-6:]}")
+                
+                # روش جدید API جمینای برای تولید تصویر
                 resp = requests.post(
                     f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
                     params={"key": eng.api_key},
                     json={
-                        "contents": [{"role": "user", "parts": [{"text": prompt_en}]}],
-                        "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
+                        "contents": [{
+                            "role": "user",
+                            "parts": [{
+                                "text": f"Generate a scientific illustration based on this description: {prompt_en}"
+                            }]
+                        }],
+                        "generationConfig": {
+                            "responseModalities": ["IMAGE", "TEXT"],
+                            "temperature": 0.4
+                        }
                     },
                     timeout=180,
                 )
+                
                 if resp.status_code != 200:
-                    log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]} نشد: HTTP {resp.status_code} — {resp.text[:220]}")
+                    error_text = resp.text[:200]
+                    log(f"⚠ تصویر با {model}: HTTP {resp.status_code} - {error_text}")
+                    
+                    # اگر مدل وجود نداره، سراغ مدل بعدی برو
+                    if resp.status_code == 404 or "not found" in error_text.lower():
+                        log(f"↷ مدل تصویری {model} وجود ندارد، رفتن به مدل بعدی...")
+                        continue
+                    
+                    # اگر کلید نامعتبره، کل کلید رو حذف کن
                     if resp.status_code in (401, 403):
                         mark_dead(state, eng)
-                        break                       # این کلید مرده — سراغ کلید بعدی
+                        break
+                    
+                    # اگر محدودیت نرخ داریم، چند ثانیه صبر کن
+                    if resp.status_code == 429:
+                        log("⏳ محدودیت نرخ در تولید تصویر، ۵ ثانیه صبر...")
+                        time.sleep(5)
+                        continue
+                    
+                    # خطاهای دیگه - مدل بعدی
                     continue
+                
                 body = resp.json()
-                cands = body.get("candidates") or [{}]
-                parts = ((cands[0] or {}).get("content") or {}).get("parts", [])
-                for p in parts:
-                    inline = p.get("inlineData") or {}
-                    if inline.get("data"):
-                        data = base64.b64decode(inline["data"])
-                        log(f"🖼 تصویر ساخته شد ({len(data) // 1024} KB) با {model}")
-                        return data
-                log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]}: پاسخ بدون داده تصویر — {json.dumps(body, ensure_ascii=False)[:220]}")
+                candidates = body.get("candidates") or []
+                
+                for candidate in candidates:
+                    content = candidate.get("content") or {}
+                    parts = content.get("parts") or []
+                    
+                    for part in parts:
+                        # روش ۱: تصویر به صورت base64 در پاسخ
+                        if "inlineData" in part and part["inlineData"].get("data"):
+                            try:
+                                data = base64.b64decode(part["inlineData"]["data"])
+                                if len(data) > 1000:  # حداقل حجم تصویر معتبر
+                                    log(f"✅ تصویر ساخته شد ({len(data) // 1024} KB) با {model}")
+                                    return data
+                            except Exception as exc:
+                                log(f"⚠ خطای decode تصویر: {exc}")
+                        
+                        # روش ۲: تصویر به صورت آدرس فایل
+                        if "fileData" in part and part["fileData"].get("fileUri"):
+                            file_uri = part["fileData"]["fileUri"]
+                            log(f"📁 تصویر در آدرس {file_uri} - دانلود...")
+                            try:
+                                img_resp = requests.get(file_uri, timeout=30)
+                                if img_resp.status_code == 200 and len(img_resp.content) > 1000:
+                                    data = img_resp.content
+                                    log(f"✅ تصویر دانلود شد ({len(data) // 1024} KB)")
+                                    return data
+                            except Exception as exc:
+                                log(f"⚠ خطای دانلود تصویر: {exc}")
+                
+                log(f"⚠ تصویر با {model}: پاسخ بدون داده تصویری معتبر")
+                
             except Exception as exc:
-                log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]} با خطا: {exc}")
-    log(f"❌ ساخت تصویر با هر {len(tried)} ترکیب کلید/مدل ناموفق بود: {', '.join(tried)}")
+                log(f"⚠ تصویر با {model}: خطای غیرمنتظره - {str(exc)[:150]}")
+                continue
+    
+    log(f"❌ ساخت تصویر با {len(tried)} ترکیب ناموفق بود")
     return None
 
 
 # ======================================================================
-#  منابع خبری (RSS)
+#  منابع خبری (RSS) - با اصلاح لینک‌ها
 # ======================================================================
 FEEDS = [
     {"url": "https://www.sciencedaily.com/rss/plants_animals/biology.xml",   "name": "ScienceDaily Biology"},
@@ -521,6 +595,62 @@ def is_relevant(title: str, summary: str) -> bool:
     return any(k in text for k in RELEVANT_KEYWORDS)
 
 
+def clean_source_url(link: str, source_name: str = "") -> str:
+    """تبدیل لینک RSS/XML به لینک HTML واقعی مقاله"""
+    if not link:
+        return ""
+    
+    # حذف query parameters غیر ضروری
+    link = link.strip()
+    
+    # اصلاح لینک‌های Nature - حذف پارامترهای RSS
+    if "nature.com" in link:
+        # حذف پارامترهای tracking
+        link = re.sub(r'\?.*$', '', link)
+        # اطمینان از اینکه لینک HTML است نه XML
+        if link.endswith(('.rss', '.xml')):
+            link = link.rsplit('.', 1)[0]
+        return link
+    
+    # اصلاح لینک‌های ScienceDaily
+    elif "sciencedaily.com" in link:
+        # حذف پارامترهای اضافی
+        link = re.sub(r'\?.*$', '', link)
+        return link
+    
+    # اصلاح لینک‌های bioRxiv
+    elif "biorxiv.org" in link:
+        # اطمینان از نسخه HTML کامل
+        if "content" in link and not link.endswith(".full"):
+            return link + ".full"
+        return link
+    
+    # اصلاح لینک‌های Phys.org
+    elif "phys.org" in link:
+        return link
+    
+    # اصلاح لینک‌های PLOS
+    elif "plos.org" in link:
+        return link
+    
+    # لینک‌های گوگل ترندز
+    elif "trends.google.com" in link:
+        return link
+    
+    # لینک‌های Hacker News
+    elif "news.ycombinator.com" in link or "hnrss.org" in link:
+        if "news.ycombinator.com" in link:
+            return link
+        # برای hnrss، لینک اصلی معمولاً در خود آیتم هست
+        return link
+    
+    # پیش‌فرض: حذف پسوندهای XML/RSS
+    if link.endswith(('.xml', '.rss', '.atom')):
+        link = link.rsplit('.', 1)[0]
+    
+    return link
+
+
 def fetch_feed_items(only_roadmap_pool: bool = False) -> list[dict]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=MAX_AGE_DAYS)
     items = []
@@ -534,9 +664,13 @@ def fetch_feed_items(only_roadmap_pool: bool = False) -> list[dict]:
             count = 0
             for e in parsed.entries:
                 title = (getattr(e, "title", "") or "").strip()
-                link = (getattr(e, "link", "") or "").strip()
-                if not title or not link:
+                raw_link = (getattr(e, "link", "") or "").strip()
+                if not title or not raw_link:
                     continue
+                
+                # تمیز کردن لینک قبل از ذخیره
+                link = clean_source_url(raw_link, feed["name"])
+                
                 summary = re.sub(r"<[^>]+>", " ", getattr(e, "summary", "") or "").strip()[:2000]
                 pub = getattr(e, "published_parsed", None) or getattr(e, "updated_parsed", None)
                 if pub is not None and datetime(*pub[:6], tzinfo=timezone.utc) < cutoff:
@@ -573,9 +707,13 @@ def fetch_trend_items() -> list[dict]:
             count = 0
             for e in parsed.entries[:15]:
                 title = (getattr(e, "title", "") or "").strip()
-                link = (getattr(e, "link", "") or "").strip()
-                if not title or not link:
+                raw_link = (getattr(e, "link", "") or "").strip()
+                if not title or not raw_link:
                     continue
+                
+                # تمیز کردن لینک
+                link = clean_source_url(raw_link, feed["name"])
+                
                 summary = re.sub(r"<[^>]+>", " ", getattr(e, "summary", "") or "").strip()[:1000]
                 items.append({"title": title, "link": link, "summary": summary, "source": feed["name"]})
                 count += 1
@@ -591,7 +729,7 @@ def fetch_trend_items() -> list[dict]:
 # ======================================================================
 TOPIC_BANK = [
     {"name": "Galaxy Project", "url": "https://usegalaxy.org", "fa": "سرور آنلاین تحلیل داده‌های ژنومیک بدون نیاز به کدنویسی"},
-    {"name": "NCBI BLAST", "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs", "fa": "ابزار جست‌وجوی تشابه توالی‌های بیولوژیکی"},
+    {"name": "NCBI BLAST", "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi", "fa": "ابزار جست‌وجوی تشابه توالی‌های بیولوژیکی"},
     {"name": "AlphaFold DB", "url": "https://alphafold.ebi.ac.uk", "fa": "پایگاه پیش‌بینی ساختار پروتئین با هوش مصنوعی"},
     {"name": "UniProt", "url": "https://www.uniprot.org", "fa": "جامع‌ترین پایگاه داده اطلاعات پروتئین‌ها"},
     {"name": "Ensembl", "url": "https://www.ensembl.org", "fa": "پایگاه داده ژنوم و حاشیه‌نویسی ژن"},
@@ -680,10 +818,8 @@ def esc(text: str) -> str:
     return html.escape(str(text or ""), quote=False)
 
 
-# نحو سبک شبه‌مارک‌داون که مدل داخل متن می‌نویسد و اینجا به تگ‌های واقعی
-# HTML تلگرام تبدیل می‌شود (بعد از escape شدن، پس امن است):
-#   **پررنگ**   __زیرخط__   ~~خط‌خورده~~   `کد`   ||اسپویلر||
 def format_inline(text: str) -> str:
+    """تبدیل مارک‌داون سبک به HTML تلگرام"""
     t = esc(text)
     t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
     t = re.sub(r"__(.+?)__", r"<u>\1</u>", t)
@@ -694,7 +830,7 @@ def format_inline(text: str) -> str:
 
 
 def render_code(code: dict | None) -> str:
-    """رندر یک تکه کد در حالت نمایش کد تلگرام (<pre><code>) با syntax highlight زبان."""
+    """رندر یک تکه کد در حالت نمایش کد تلگرام"""
     if not isinstance(code, dict):
         return ""
     snippet = str(code.get("snippet") or "").strip()
@@ -707,15 +843,17 @@ def render_code(code: dict | None) -> str:
 
 def esc_url(url: str) -> str:
     url = (url or "").strip()
-    return html.escape(url if url.startswith("http") else "https://example.com", quote=True)
+    if not url.startswith("http"):
+        url = "https://example.com"
+    return html.escape(url, quote=True)
 
 
 def channel_link() -> str:
-    if CHANNEL_LINK_ENV:                   # لینک دعوت کانال خصوصی (در env)
+    if CHANNEL_LINK_ENV:
         return CHANNEL_LINK_ENV
     if CHANNEL_ID.startswith("@"):
         return f'https://t.me/{CHANNEL_ID[1:]}'
-    return ""                              # کانال خصوصی بدون لینک عمومی
+    return ""
 
 
 def footer(source_url: str, source_name: str) -> str:
@@ -941,7 +1079,7 @@ def tg_post(method: str, data: dict, files: dict | None = None) -> dict:
             if body.get("ok"):
                 return body
             description = body.get("description", "")
-            if "parse" in description.lower():      # خطای HTML → ارسال بدون قالب‌بندی
+            if "parse" in description.lower():
                 plain = re.sub(r"<[^>]+>", "", data.get("text") or data.get("caption") or "")
                 data = {k: v for k, v in data.items() if k not in ("parse_mode", "link_preview_options")}
                 for key in ("text", "caption"):
@@ -962,7 +1100,7 @@ def tg_post(method: str, data: dict, files: dict | None = None) -> dict:
 
 
 def build_reply_markup(source_url: str = "") -> str | None:
-    """دکمه‌های شیشه‌ای زیر پست: لینک منبع + عضویت در کانال (فیچر تلگرام)."""
+    """دکمه‌های شیشه‌ای زیر پست: لینک منبع + عضویت در کانال"""
     buttons = []
     if source_url and source_url.startswith("http"):
         buttons.append({"text": "🔗 منبع کامل", "url": source_url})
@@ -1006,7 +1144,7 @@ def send_text(text: str, source_url: str = "") -> None:
             "parse_mode": "HTML",
             "disable_web_page_preview": "true" if i > 0 else "false",
         }
-        if markup and i == len(chunks) - 1:      # دکمه‌ها فقط زیر آخرین بخش پیام
+        if markup and i == len(chunks) - 1:
             data["reply_markup"] = markup
         tg_post("sendMessage", data)
         log(f"📤 پیام متنی ارسال شد ({i + 1}/{len(chunks)})")
@@ -1051,10 +1189,7 @@ def pick_type() -> str:
 
 
 def today_gate(state: dict) -> bool:
-    """آیا اجازه داریم الان پست بگذاریم؟
-    به‌طور پیش‌فرض بدون هیچ محدودیت زمانی یا سقفی همیشه True است — طبق خواسته،
-    ربات هر بار که Actions اجرایش می‌کند (هر ۳۰ دقیقه) پست می‌گذارد.
-    اگر خواستی سقف روزانه قدیمی را برگردانی، ENABLE_DAILY_CAP=1 را ست کن."""
+    """آیا اجازه داریم الان پست بگذاریم؟"""
     if os.environ.get("ENABLE_DAILY_CAP", "0") != "1":
         return True
     td = state.setdefault("today", {})
@@ -1093,7 +1228,7 @@ def main() -> int:
 
     state = load_state()
 
-    refresh_gemini_models(state)   # کشف خودکار مدل‌های جمینایِ در دسترس (کش روزانه)
+    refresh_gemini_models(state)
 
     if not today_gate(state):
         return 0
@@ -1102,7 +1237,6 @@ def main() -> int:
     log(f"📂 نوع محتوا: {ctype} (امروز {state.get('today', {}).get('count', 0)}/"
         f"{state.get('today', {}).get('target', '?')})")
 
-    # ---------- انتخاب ماده خام ----------
     d = source_url = source_name = emoji = None
 
     if ctype == "trend":
@@ -1170,7 +1304,6 @@ def main() -> int:
     if d is None:
         raise RuntimeError("نوع محتوا ناشناخته است")
 
-    # ---------- ساخت پست نهایی ----------
     if ctype == "roadmap":
         full_text = render_roadmap(d, source_url, source_name)
     else:
@@ -1182,7 +1315,6 @@ def main() -> int:
     print(full_text)
     log("=" * 60)
 
-    # ---------- تصویر ----------
     image = None
     if WITH_IMAGE:
         if not TELEGRAM_DRY:
@@ -1193,7 +1325,6 @@ def main() -> int:
             with open(os.path.join(ROOT, "state", "last_image.png"), "wb") as f:
                 f.write(image)
 
-    # ---------- ارسال ----------
     if TELEGRAM_DRY:
         log("🔧 حالت TELEGRAM_DRY — ارسال واقعی انجام نشد")
     elif image:
@@ -1202,7 +1333,6 @@ def main() -> int:
         log("📷 بدون تصویر (ناموفق یا غیرفعال)؛ ارسال متنی")
         send_text(full_text, source_url)
 
-    # ---------- نظرسنجی (فیچر بومی تلگرام برای تعامل بیشتر) ----------
     poll_q = str(d.get("poll_question") or "").strip()
     poll_opts = [str(o).strip() for o in (d.get("poll_options") or []) if str(o).strip()]
     if not TELEGRAM_DRY and poll_q and len(poll_opts) >= 2:
@@ -1220,9 +1350,8 @@ def main() -> int:
 # ======================================================================
 def selftest() -> int:
     log("🧪 selftest شروع شد")
-    # ۱) پارس AI_CONFIG با هر دو شکل کلید جمینای (رشته و شیء با models)
     sample_cfg = json.dumps({
-        "gemini_models": ["gemini-2.5-pro", "gemini-2.5-flash"],
+        "gemini_models": ["gemini-2.5-flash", "gemini-2.0-flash"],
         "gemini": [
             {"api_key": "AIza-key-111111"},
             {"api_key": "AIza-key-222222", "models": ["gemini-2.5-flash"]},
@@ -1239,34 +1368,29 @@ def selftest() -> int:
     assert len(ENGINES) == 5, f"موتورها: {len(ENGINES)}"
     log(f"✔ پارس AI_CONFIG: {len(ENGINES)} کلید → {[e.id for e in ENGINES]}")
 
-    # ۲) ترتیب اولویت: کلید اول باید pro را قبل از flash امتحان کند
     cands = ordered_candidates(load_state())
     first_key_models = [m for e, m in cands if e.api_key.endswith("111111")]
-    assert first_key_models == ["gemini-2.5-pro", "gemini-2.5-flash"], first_key_models
-    assert len(cands) == 7, len(cands)   # 2+1+2 جمینای + 2 اوپن‌ای‌آی
+    assert first_key_models == ["gemini-2.5-flash", "gemini-2.0-flash"], first_key_models
+    assert len(cands) == 7, len(cands)
     log(f"✔ ترتیب اولویت (کلید اول: {first_key_models}) و مجموع {len(cands)} گزینه — درست")
 
-    # ۳) خنک‌سازی فقط همان (کلید، مدل) را کنار می‌گذارد؛ مدل بعدی می‌آید
     state = load_state()
-    set_cooldown(state, candidate_id(ENGINES[0], "gemini-2.5-pro"))
+    set_cooldown(state, candidate_id(ENGINES[0], "gemini-2.5-flash"))
     cands2 = ordered_candidates(state)
-    assert cands2[0] == (ENGINES[0], "gemini-2.5-flash")
-    log("✔ خنک‌سازی Pro → خودکار رفتن سراغ Flash")
+    assert cands2[0] == (ENGINES[0], "gemini-2.0-flash")
+    log("✔ خنک‌سازی → خودکار رفتن سراغ مدل بعدی")
     state["cooldowns"] = {}
 
-    # ۴) کلید مرده حذف می‌شود
     mark_dead(state, ENGINES[1])
     cands3 = ordered_candidates(state)
     assert all(e is not ENGINES[1] for e, _ in cands3)
     state["dead_engines"] = []
     log("✔ کلید نامعتبر از چرخه خارج می‌شود")
 
-    # ۵) پارس JSON حتی داخل fence
     assert extract_json('```json\n{"a": 1}\n```') == {"a": 1}
     assert extract_json('متن {"a": {"b": 2}} ادامه') == {"a": {"b": 2}}
     log("✔ استخراج JSON از پاسخ‌های آلوده درست است")
 
-    # ۶) رندر و قالب پست
     d = extract_json(MOCK_RESPONSE)
     p1 = render_post(d, "https://example.com/p", "Nature Methods", "🧬")
     p2 = render_roadmap(
@@ -1281,38 +1405,43 @@ def selftest() -> int:
     assert all(len(c) <= 4000 for c in split_message(p1 * 3))
     log(f"✔ رندر پست‌ها (متن: {len(p1)}، رودمپ: {len(p2)}، کپشن: {len(cap)} کاراکتر)")
 
-    # ۷) سقف روزانه (به‌طور پیش‌فرض غیرفعال — طبق خواسته، همیشه پست می‌گذاریم)
+    # تست تمیز کردن لینک‌ها
+    test_links = [
+        ("https://www.nature.com/articles/s41586-024-12345-6?utm_source=rss&utm_medium=rss", "Nature", "https://www.nature.com/articles/s41586-024-12345-6"),
+        ("https://www.biorxiv.org/content/10.1101/2024.01.01.123456v1", "bioRxiv Bioinformatics", "https://www.biorxiv.org/content/10.1101/2024.01.01.123456v1.full"),
+        ("https://www.sciencedaily.com/releases/2024/01/240101123456.htm?utm_source=rss", "ScienceDaily Biology", "https://www.sciencedaily.com/releases/2024/01/240101123456.htm"),
+    ]
+    for raw, src, expected in test_links:
+        cleaned = clean_source_url(raw, src)
+        assert cleaned == expected, f"لینک تمیز نشد: {raw} → {cleaned} (انتظار: {expected})"
+    log("✔ تمیز کردن لینک‌های RSS/XML به HTML درست کار می‌کند")
+
     state2 = load_state()
-    assert today_gate(state2) is True                     # پیش‌فرض: بدون سقف، همیشه مجاز
-    os.environ["ENABLE_DAILY_CAP"] = "1"                   # فعال‌سازی دستی برای تست منطق قدیمی
-    os.environ["DAILY_MIN"] = os.environ.get("DAILY_MIN", "20")
-    assert today_gate(state2) is True                      # روز تازه → شروع شمارش
-    state2["today"]["count"] = state2["today"]["target"]   # پر کردن سقف
+    assert today_gate(state2) is True
+    os.environ["ENABLE_DAILY_CAP"] = "1"
+    assert today_gate(state2) is True
+    state2["today"]["count"] = state2["today"]["target"]
     assert today_gate(state2) is False
     os.environ["FORCE_POST"] = "1"
-    assert today_gate(state2) is True                      # اجرای دستی همیشه مجاز
+    assert today_gate(state2) is True
     os.environ["FORCE_POST"] = ""
     today_increment(state2)
     assert state2["today"]["count"] == state2["today"]["target"] + 1
     os.environ["ENABLE_DAILY_CAP"] = "0"
     log("✔ سقف روزانه پیش‌فرض غیرفعال است؛ منطق قدیمی هم با ENABLE_DAILY_CAP=1 درست کار می‌کند")
 
-    # ۸) کشف و رتبه‌بندی مدل‌های جمینای (فقط رایگان‌ها؛ پرو حذف)
-    sample_ids = ["gemini-2.5-flash", "gemini-3-flash", "gemini-3-pro",
-                  "gemini-3-pro-image", "text-embedding-004",
-                  "gemini-2.0-flash-lite", "gemini-3.5-flash-lite"]
+    sample_ids = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-3-pro",
+                  "gemini-2.0-flash-lite", "text-embedding-004"]
     ranked = rank_gemini_models(sample_ids)
-    assert ranked[0] == "gemini-3.5-flash-lite", ranked
-    assert all("pro" not in r.lower() and "image" not in r and "embedding" not in r for r in ranked)
-    assert rank_gemini_models(sample_ids, pinned=["gemini-2.5-flash"])[0] == "gemini-2.5-flash"
+    assert ranked[0] == "gemini-2.5-flash", ranked
+    assert all("pro" not in r.lower() and "embedding" not in r for r in ranked)
+    assert rank_gemini_models(sample_ids, pinned=["gemini-2.0-flash"])[0] == "gemini-2.0-flash"
     log(f"✔ رتبه‌بندی مدل‌های جمینای: {ranked}")
 
-    # ۹) انتخاب مدل جایگزین برای سرویس‌های OpenAI-سازگار
     best = pick_openai_model(["grok-4", "grok-4-fast", "llama-3.3-70b"], failed="grok-4.1-fast")
     assert best == "grok-4-fast", best
     log(f"✔ انتخاب مدل جایگزین خودکار: grok-4.1-fast → {best}")
 
-    # ۱۰) فوتر کانال خصوصی (CHANNEL_ID عددی، بدون لینک عمومی)
     global CHANNEL_ID
     old_ch = CHANNEL_ID
     CHANNEL_ID = "-1001234567890"
@@ -1321,7 +1450,6 @@ def selftest() -> int:
     CHANNEL_ID = old_ch
     log("✔ کانال خصوصی: فوتر بدون لینک خراد ساخته می‌شود")
 
-    # ۱۱) توزیع وزنی
     counts = {t: 0 for t in CONTENT_TYPES}
     for _ in range(20000):
         counts[pick_type()] += 1

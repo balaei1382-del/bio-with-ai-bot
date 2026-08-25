@@ -1,6 +1,7 @@
 {
  "links": [
-  "https://phys.org/news/2026-08-bush-ai-nz-wilderness-holdout.html"
+  "https://phys.org/news/2026-08-bush-ai-nz-wilderness-holdout.html",
+  "https://www.biorxiv.org/content/10.64898/2026.08.20.745983v1?rss=1"
  ],
  "topics": [
   "IQ-TREE"
@@ -21,7 +22,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 2,
+  "count": 3,
   "target": 22
  }
 }

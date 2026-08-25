@@ -4,7 +4,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.20.745983v1?rss=1",
   "https://trends.google.com/trending/rss?geo=US",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014656",
-  "https://www.nature.com/articles/s41587-026-03238-6"
+  "https://www.nature.com/articles/s41587-026-03238-6",
+  "https://www.biorxiv.org/content/10.64898/2026.08.07.743613v1?rss=1.full"
  ],
  "topics": [
   "IQ-TREE",
@@ -27,7 +28,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 8,
+  "count": 9,
   "target": 22
  }
 }

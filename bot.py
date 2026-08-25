@@ -489,8 +489,13 @@ def generate_image(state: dict, prompt_en: str) -> bytes | None:
         log("⚠ تصویر: هیچ مدل تصویری کشف/تنظیم نشده (model_cache خالی است)")
         return None
     tried = []
+    quota_hits = 0          # تعداد دفعاتی که HTTP 429 (اتمام کوتا) گرفتیم
+    first_attempt = True
     for eng in gemini_keys:
         for model in image_models:
+            if not first_attempt:
+                time.sleep(4)   # فاصله بین درخواست‌ها؛ به عبور از محدودیت RPM کمک می‌کند
+            first_attempt = False
             tried.append(f"{eng.id}/{model}")
             try:
                 resp = requests.post(
@@ -507,6 +512,9 @@ def generate_image(state: dict, prompt_en: str) -> bytes | None:
                     if resp.status_code in (401, 403):
                         mark_dead(state, eng)
                         break                       # این کلید مرده — سراغ کلید بعدی
+                    if resp.status_code == 429:
+                        quota_hits += 1
+                        time.sleep(8)               # کمی بیشتر صبر کن، شاید محدودیت دقیقه‌ای باشد
                     continue
                 body = resp.json()
                 cands = body.get("candidates") or [{}]
@@ -521,6 +529,16 @@ def generate_image(state: dict, prompt_en: str) -> bytes | None:
             except Exception as exc:
                 log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]} با خطا: {exc}")
     log(f"❌ ساخت تصویر با هر {len(tried)} ترکیب کلید/مدل ناموفق بود: {', '.join(tried)}")
+    if tried and quota_hits == len(tried):
+        log(
+            "🔎 تشخیص: همه‌ی تلاش‌ها HTTP 429 (اتمام کوتا) بودند. این معمولاً یعنی "
+            "هیچ‌کدام از این کلیدهای API روی سطح رایگان، سهمیه‌ی کافی برای مدل‌های "
+            "تصویری ندارند — نه یک باگ در کد. سهمیه‌ی تصویر گوگل برای حساب‌های رایگان "
+            "بسیار محدود (و گاهی صفر) است و جدا از سهمیه‌ی مدل‌های متنی حساب می‌شود. "
+            "برای رفع قطعی: در Google AI Studio → API keys، برای همان پروژه‌ی هر کلید "
+            "Billing (پرداخت) را فعال کنید، یا از داشبورد https://ai.google.dev/gemini-api/docs/rate-limits "
+            "سقف روزانه/دقیقه‌ای مدل‌های تصویری را برای هر کلید بررسی کنید."
+        )
     return None
 
 

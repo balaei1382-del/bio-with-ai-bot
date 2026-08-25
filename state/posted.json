@@ -3,7 +3,8 @@
   "https://phys.org/news/2026-08-bush-ai-nz-wilderness-holdout.html",
   "https://www.biorxiv.org/content/10.64898/2026.08.20.745983v1?rss=1",
   "https://trends.google.com/trending/rss?geo=US",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014656"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014656",
+  "https://www.nature.com/articles/s41587-026-03238-6"
  ],
  "topics": [
   "IQ-TREE",
@@ -26,7 +27,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 7,
+  "count": 8,
   "target": 22
  }
 }

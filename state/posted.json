@@ -4,7 +4,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.20.745983v1?rss=1"
  ],
  "topics": [
-  "IQ-TREE"
+  "IQ-TREE",
+  "NCBI BLAST"
  ],
  "model_cache": {
   "gemini_date": "2026-08-25",
@@ -22,7 +23,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 3,
+  "count": 4,
   "target": 22
  }
 }

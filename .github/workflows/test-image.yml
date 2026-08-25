@@ -1,35 +1,56 @@
-# .github/workflows/test-image.yml
 name: Test Image Generation
 
 on:
-  workflow_dispatch:  # فقط دستی اجرا میشه
+  workflow_dispatch:  # اجرای دستی
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+        with:
+          fetch-depth: 1
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      
+      - name: Check files
+        run: |
+          echo "=== فایل‌های موجود ==="
+          ls -la
+          echo ""
+          echo "=== محتوای test_image.py ==="
+          cat test_image.py || echo "❌ فایل test_image.py پیدا نشد!"
+      
       - name: Install dependencies
         run: |
           pip install requests
-      - name: Test image generation
+          echo "✅ requests نصب شد"
+      
+      - name: Run image test
         env:
           AI_CONFIG: ${{ secrets.AI_CONFIG }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: |
-          # ذخیره اسکریپت تست
-          cat > test_image.py << 'EOF'
-          # اینجا کد تست رو بذار
-          EOF
-          
-          python test_image.py
-      - name: Upload test image
+          echo "=== شروع تست تصویر ==="
+          python test_image.py 2>&1 | tee test_output.log
+          echo "=== پایان تست ==="
+      
+      - name: Show results
+        run: |
+          echo "=== نتایج تست ==="
+          cat test_output.log
+      
+      - name: Upload logs
         uses: actions/upload-artifact@v4
         with:
-          name: test-image
-          path: test_image.png
+          name: test-logs
+          path: |
+            test_output.log
+            test_image.png
+            test_upload.png
+          if-no-files-found: ignore

@@ -8,8 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
       
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -22,7 +20,7 @@ jobs:
           ls -la
           echo ""
           echo "=== محتوای test_image.py ==="
-          cat test_image.py || echo "❌ فایل test_image.py پیدا نشد!"
+          head -20 test_image.py || echo "❌ فایل test_image.py پیدا نشد!"
       
       - name: Install dependencies
         run: |
@@ -33,24 +31,15 @@ jobs:
         env:
           AI_CONFIG: ${{ secrets.AI_CONFIG }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: |
-          echo "=== شروع تست تصویر ==="
-          python test_image.py 2>&1 | tee test_output.log
+          echo "=== شروع تست ==="
+          python test_image.py 2>&1
           echo "=== پایان تست ==="
       
-      - name: Show results
-        run: |
-          echo "=== نتایج تست ==="
-          cat test_output.log
-      
-      - name: Upload logs
+      - name: Upload test images
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs
+          name: test-images
           path: |
-            test_output.log
-            test_image.png
-            test_upload.png
+            test_*.png
           if-no-files-found: ignore

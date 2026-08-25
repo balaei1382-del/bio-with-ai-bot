@@ -48,11 +48,14 @@ CHANNEL_ID     = os.environ.get("CHANNEL_ID", "@Bio_with_AI").strip()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()          # حالت قدیمی تک‌کلید
 AI_CONFIG      = os.environ.get("AI_CONFIG", "").strip()               # حالت چند-سرویسی
 
-# اولویت مدل‌های متنی جمینای: اول مدل‌های Pro (کیفیت بالاتر، سهمیه رایگان کمتر)، بعد Flash
-DEFAULT_GEMINI_MODELS = [m.strip() for m in os.environ.get(
-    "GEMINI_MODELS", "gemini-3-pro, gemini-2.5-pro, gemini-2.5-flash").split(",") if m.strip()]
-
-GEMINI_IMAGE_MODELS = ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"]
+# مدل‌های جمینای به‌صورت خودکار «کشف» می‌شوند: ربات موقع اجرا فهرست واقعیِ
+# مدل‌های در دسترسِ کلید را می‌گیرد و بهترینِ رایگان (Flash) را برمی‌گزیند.
+# مقادیر زیر فقط وقتی استفاده می‌شوند که کشف ممکن نباشد:
+FALLBACK_GEMINI_MODELS = [m.strip() for m in os.environ.get("GEMINI_MODELS",
+    "gemini-flash-latest, gemini-2.5-flash, gemini-2.0-flash").split(",") if m.strip()]
+GEMINI_IMAGE_FALLBACK = ["gemini-2.5-flash-image", "gemini-2.0-flash-preview-image-generation"]
+INCLUDE_PRO = os.environ.get("INCLUDE_PRO", "0") == "1"   # 0 = فقط مدل‌های رایگان (Flash)
+CHANNEL_LINK_ENV = os.environ.get("CHANNEL_LINK", "").strip()  # برای کانال خصوصی: لینک دعوت
 
 MAX_AGE_DAYS   = int(os.environ.get("MAX_AGE_DAYS", "10"))
 FORCE_TYPE     = os.environ.get("FORCE_TYPE", "").strip().lower()      # news|tip|roadmap|tool
@@ -115,7 +118,9 @@ def load_engines() -> list[Engine]:
                 "یا مقداری که داخل \"...\" گذاشته نشده. "
                 "راه آسان: فایل config-builder.html را در مرورگر باز کنید و JSON سالم بسازید."
             ) from exc
-        default_models = [str(m).strip() for m in cfg.get("gemini_models", DEFAULT_GEMINI_MODELS) if str(m).strip()]
+        global PINNED_GEMINI_MODELS
+        PINNED_GEMINI_MODELS = [str(m).strip() for m in cfg.get("gemini_models", []) if str(m).strip()]
+        default_models = PINNED_GEMINI_MODELS or FALLBACK_GEMINI_MODELS
         for entry in cfg.get("gemini", []):
             if isinstance(entry, dict):
                 key = str(entry.get("api_key", "")).strip()
@@ -129,11 +134,136 @@ def load_engines() -> list[Engine]:
                 engines.append(Engine("openai", e["api_key"].strip(),
                                       [e["model"].strip()], e["base_url"]))
     if not engines and legacy:
-        engines.append(Engine("gemini", legacy, DEFAULT_GEMINI_MODELS))
+        engines.append(Engine("gemini", legacy, PINNED_GEMINI_MODELS or FALLBACK_GEMINI_MODELS))
     return engines
 
 
 ENGINES: list[Engine] = []   # در main()/selftest() از AI_CONFIG خوانده می‌شود
+PINNED_GEMINI_MODELS: list[str] = []  # اگر کاربر در AI_CONFIG مدل خاصی خواسته باشد
+
+
+# ----------------------------------------------------------------------
+#  کشف خودکار مدل‌های در دسترس (دیگر هیچ اسم مدلی حدس زده نمی‌شود)
+# ----------------------------------------------------------------------
+BAD_GEMINI = ("image", "tts", "embedding", "aqa", "native-audio", "live",
+              "veo", "imagen", "learnlm", "gemma", "robotics")
+
+
+def _model_version(name: str) -> float:
+    m = re.search(r"(\d+(?:\.\d+)?)", name)
+    return float(m.group(1)) if m else 0.0
+
+
+def rank_gemini_models(ids: list[str], pinned: list[str] | None = None) -> list[str]:
+    """مرتب‌سازی مدل‌های کشف‌شده: اول مدل‌های پیشنهادی کاربر (اگر موجودند)،
+    بعد Flashهای جدید (رایگان)؛ پرو/اولترا حذف می‌شوند مگر INCLUDE_PRO=1."""
+    pinned = pinned or []
+    ids = list(dict.fromkeys(ids))
+    chat, chosen = [], []
+    for i in ids:
+        s = i.lower()
+        if any(b in s for b in BAD_GEMINI):
+            continue
+        if not INCLUDE_PRO and ("pro" in s or "ultra" in s):
+            continue                                # فقط مدل‌های رایگان (حتی اگر در تنظیمات آمده باشد)
+        if i in pinned and i not in chosen:
+            chosen.append(i)                        # خواسته صریح کاربر — و واقعاً موجود است
+        elif i not in chosen:
+            chat.append(i)
+    chat.sort(key=lambda i: ("flash" not in i.lower(), -_model_version(i), len(i)))
+    return (chosen + chat)[:4]
+
+
+def discover_gemini_models(api_key: str) -> tuple[list[str], list[str]]:
+    """گرفتن فهرست واقعی مدل‌های کلید از گوگل → (مدل‌های متنی، مدل‌های تصویری)"""
+    r = requests.get(
+        "https://generativelanguage.googleapis.com/v1beta/models",
+        params={"key": api_key, "pageSize": 200}, timeout=30,
+    )
+    r.raise_for_status()
+    chat_ids, image_ids = [], []
+    for m in r.json().get("models", []):
+        if "generateContent" not in m.get("supportedGenerationMethods", []):
+            continue
+        mid = (m.get("name") or "").split("/")[-1]
+        if not mid:
+            continue
+        if "image" in mid.lower():
+            image_ids.append(mid)
+        elif not any(b in mid.lower() for b in BAD_GEMINI):
+            chat_ids.append(mid)
+    return chat_ids, image_ids
+
+
+def pick_openai_model(ids: list[str], failed: str) -> str | None:
+    """وقتی مدلِ تنظیم‌شده پیدا نشد، از فهرست /models یک مدل مناسب انتخاب کن."""
+    ids = [i for i in ids if i]
+    if not ids:
+        return None
+    prefs = ["flash", "fast", "free", "mini", "chat", "deepseek", "qwen", "llama", "grok"]
+
+    def rank(i):
+        s = i.lower()
+        pref_idx = len(prefs)
+        for k in range(len(prefs)):
+            if prefs[k] in s:
+                pref_idx = k
+                break
+        return (i == failed, pref_idx, len(i))
+
+    return sorted(ids, key=rank)[0]
+
+
+def pin_openai_model(eng: Engine, state: dict) -> str | None:
+    """برای سرویس‌های سازگار با OpenAI: کشف مدل از /models و پین کردن."""
+    try:
+        r = requests.get(f"{eng.base_url}/models",
+                         headers={"Authorization": f"Bearer {eng.api_key}"}, timeout=30)
+        if r.status_code != 200:
+            return None
+        ids = [m.get("id") for m in r.json().get("data", []) if isinstance(m, dict)]
+    except Exception:
+        return None
+    best = pick_openai_model(ids, eng.models[0] if eng.models else "")
+    if best:
+        eng.models = [best]
+        state.setdefault("model_pin", {})[eng.id] = best
+        log(f"📌 برای {eng.id} مدل در دسترس «{best}» انتخاب شد")
+        return best
+    return None
+
+
+def apply_gemini_models(models: list[str]) -> None:
+    for e in ENGINES:
+        if e.kind == "gemini" and models:
+            e.models = models
+
+
+def refresh_gemini_models(state: dict, force: bool = False) -> None:
+    """کشف روزانه مدل‌های جمینای (کش در state). اگر کشف نشد، لیست پیش‌فرض می‌ماند."""
+    cache = state.setdefault("model_cache", {})
+    today = datetime.now(TEHRAN_TZ).strftime("%Y-%m-%d")
+    if not force and cache.get("gemini_date") == today and cache.get("gemini_models"):
+        apply_gemini_models(cache["gemini_models"])
+        return
+    for e in ENGINES:
+        if e.kind != "gemini":
+            continue
+        try:
+            chat_ids, image_ids = discover_gemini_models(e.api_key)
+        except Exception as exc:
+            log(f"⚠ کشف مدل‌ها با کلید …{e.api_key[-6:]} نشد: {str(exc)[:90]}")
+            continue
+        if chat_ids:
+            ranked = rank_gemini_models(chat_ids, PINNED_GEMINI_MODELS)
+            cache.update(gemini_date=today, gemini_models=ranked,
+                         gemini_image=image_ids[:3] or cache.get("gemini_image", []))
+            apply_gemini_models(ranked)
+            log(f"🔎 مدل‌های جمینایِ در دسترس: {ranked}")
+            if image_ids:
+                log(f"🖼 مدل‌های تصویریِ در دسترس: {image_ids[:3]}")
+            return
+    log("⚠ کشف مدل‌های جمینای ممکن نشد؛ از لیست پیش‌فرض استفاده می‌شود")
 
 
 def load_state() -> dict:
@@ -254,29 +384,44 @@ MOCK_RESPONSE = json.dumps({
 
 
 def call_llm(state: dict, system: str, user: str) -> dict:
-    """فراخوانی LLM با چرخش خودکار روی (کلید، مدل)ها به ترتیب اولویت."""
+    """فراخوانی LLM با چرخش خودکار روی (کلید، مدل)ها؛
+    اگر مدلی وجود نداشت، خودش مدل در دسترس را کشف و جایگزین می‌کند."""
     if MOCK_LLM or SELFTEST:
         return extract_json(MOCK_RESPONSE)
     errors = []
-    for eng, model in ordered_candidates(state):
-        fn = llm_gemini if eng.kind == "gemini" else llm_openai
-        try:
-            raw = fn(eng, model, system, user)
-            parsed = extract_json(raw)
-            log(f"✔ پاسخ از {candidate_id(eng, model)}")
-            return parsed
-        except Exception as exc:
-            msg = str(exc)
-            errors.append(f"{candidate_id(eng, model)}: {msg[:160]}")
-            if " 429" in msg or " 402" in msg or "RESOURCE_EXHAUSTED" in msg:
-                set_cooldown(state, candidate_id(eng, model), minutes=90)
-            elif " 401" in msg or " 403" in msg:
-                mark_dead(state, eng)
-            elif " 404" in msg:
-                log(f"↷ مدل {model} در دسترس نیست؛ مدل بعدی…")
-            else:                                   # خطای گذرا — فقط ثبت
-                log(f"⚠ {candidate_id(eng, model)}: {msg[:140]}")
-                time.sleep(3)
+    for _pass in range(3):                     # تا ۲ بار «کشف مدل جدید و شروع مجدد»
+        restart = False
+        for eng, model in ordered_candidates(state):
+            fn = llm_gemini if eng.kind == "gemini" else llm_openai
+            try:
+                raw = fn(eng, model, system, user)
+                parsed = extract_json(raw)
+                log(f"✔ پاسخ از {candidate_id(eng, model)}")
+                return parsed
+            except Exception as exc:
+                msg = str(exc)
+                errors.append(f"{candidate_id(eng, model)}: {msg[:160]}")
+                if " 429" in msg or " 402" in msg or "RESOURCE_EXHAUSTED" in msg:
+                    set_cooldown(state, candidate_id(eng, model), minutes=90)
+                elif " 401" in msg or " 403" in msg:
+                    mark_dead(state, eng)
+                elif " 404" in msg or (" 400" in msg and "model" in msg.lower()):
+                    # مدل وجود ندارد → کشف مدل در دسترس و تلاش دوباره
+                    log(f"↷ مدل {model} در دسترس نیست؛ جست‌وجوی مدل جایگزین…")
+                    new = None
+                    if eng.kind == "openai":
+                        new = pin_openai_model(eng, state)
+                    else:
+                        refresh_gemini_models(state, force=True)
+                        new = eng.models[0] if eng.models else None
+                    if new and new != model:
+                        restart = True
+                        break
+                else:                                   # خطای گذرا — فقط ثبت
+                    log(f"⚠ {candidate_id(eng, model)}: {msg[:140]}")
+                    time.sleep(3)
+        if not restart:
+            break
     raise RuntimeError("هیچ‌کدام از موتورهای هوش مصنوعی پاسخ ندادند:\n" + "\n".join(errors[:8]))
 
 
@@ -292,10 +437,11 @@ TINY_PNG = base64.b64decode(
 def generate_image(state: dict, prompt_en: str) -> bytes | None:
     if MOCK_LLM or SELFTEST:
         return TINY_PNG
+    image_models = state.get("model_cache", {}).get("gemini_image") or GEMINI_IMAGE_FALLBACK
     dead = set(state.get("dead_engines", []))
     gemini_keys = [e for e in ENGINES if e.kind == "gemini" and e.id not in dead]
     for eng in gemini_keys:
-        for model in GEMINI_IMAGE_MODELS:
+        for model in image_models:
             try:
                 resp = requests.post(
                     f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
@@ -478,15 +624,21 @@ def esc_url(url: str) -> str:
 
 
 def channel_link() -> str:
+    if CHANNEL_LINK_ENV:                   # لینک دعوت کانال خصوصی (در env)
+        return CHANNEL_LINK_ENV
     if CHANNEL_ID.startswith("@"):
         return f'https://t.me/{CHANNEL_ID[1:]}'
-    return "https://t.me/Bio_with_AI"
+    return ""                              # کانال خصوصی بدون لینک عمومی
 
 
 def footer(source_url: str, source_name: str) -> str:
+    link = channel_link()
+    name = CHANNEL_ID.lstrip("@") if CHANNEL_ID.startswith("@") else "Bio with AI"
+    chan = (f'📌 <b>کانال:</b> <a href="{html.escape(link, quote=True)}">{esc(name)}</a>'
+            if link else "📌 <b>کانال:</b> Bio with AI")
     return (
         f'🔗 <b>منبع:</b> <a href="{esc_url(source_url)}">{esc(source_name)}</a>\n'
-        f'📌 <b>کانال:</b> <a href="{channel_link()}">{CHANNEL_ID.lstrip("@")}</a>'
+        + chan
     )
 
 
@@ -762,6 +914,8 @@ def main() -> int:
 
     state = load_state()
 
+    refresh_gemini_models(state)   # کشف خودکار مدل‌های جمینایِ در دسترس (کش روزانه)
+
     if not today_gate(state):
         return 0
 
@@ -937,7 +1091,31 @@ def selftest() -> int:
     assert state2["today"]["count"] == state2["today"]["target"] + 1
     log("✔ منطق سقف روزانه (۲۰ تا ۳۰) درست کار می‌کند")
 
-    # ۸) توزیع وزنی
+    # ۸) کشف و رتبه‌بندی مدل‌های جمینای (فقط رایگان‌ها؛ پرو حذف)
+    sample_ids = ["gemini-2.5-flash", "gemini-3-flash", "gemini-3-pro",
+                  "gemini-3-pro-image", "text-embedding-004",
+                  "gemini-2.0-flash-lite", "gemini-3.5-flash-lite"]
+    ranked = rank_gemini_models(sample_ids)
+    assert ranked[0] == "gemini-3.5-flash-lite", ranked
+    assert all("pro" not in r.lower() and "image" not in r and "embedding" not in r for r in ranked)
+    assert rank_gemini_models(sample_ids, pinned=["gemini-2.5-flash"])[0] == "gemini-2.5-flash"
+    log(f"✔ رتبه‌بندی مدل‌های جمینای: {ranked}")
+
+    # ۹) انتخاب مدل جایگزین برای سرویس‌های OpenAI-سازگار
+    best = pick_openai_model(["grok-4", "grok-4-fast", "llama-3.3-70b"], failed="grok-4.1-fast")
+    assert best == "grok-4-fast", best
+    log(f"✔ انتخاب مدل جایگزین خودکار: grok-4.1-fast → {best}")
+
+    # ۱۰) فوتر کانال خصوصی (CHANNEL_ID عددی، بدون لینک عمومی)
+    global CHANNEL_ID
+    old_ch = CHANNEL_ID
+    CHANNEL_ID = "-1001234567890"
+    priv = footer("https://example.com/x", "Test")
+    assert "https://t.me/" not in priv and "Bio with AI" in priv
+    CHANNEL_ID = old_ch
+    log("✔ کانال خصوصی: فوتر بدون لینک خراد ساخته می‌شود")
+
+    # ۱۱) توزیع وزنی
     counts = {t: 0 for t in ("news", "tip", "roadmap", "tool")}
     for _ in range(20000):
         counts[pick_type()] += 1

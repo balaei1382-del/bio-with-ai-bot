@@ -13,7 +13,8 @@
   "IQ-TREE",
   "NCBI BLAST",
   "Prokka",
-  "antiSMASH"
+  "antiSMASH",
+  "FastQC"
  ],
  "model_cache": {
   "gemini_date": "2026-08-26",
@@ -31,7 +32,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 12,
+  "count": 13,
   "target": 22
  }
 }

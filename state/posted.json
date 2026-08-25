@@ -2,7 +2,9 @@
  "links": [
   "https://phys.org/news/2026-08-bush-ai-nz-wilderness-holdout.html"
  ],
- "topics": [],
+ "topics": [
+  "IQ-TREE"
+ ],
  "model_cache": {
   "gemini_date": "2026-08-25",
   "gemini_models": [
@@ -19,7 +21,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 1,
+  "count": 2,
   "target": 22
  }
 }

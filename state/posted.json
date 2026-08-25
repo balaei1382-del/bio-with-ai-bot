@@ -6,7 +6,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014656",
   "https://www.nature.com/articles/s41587-026-03238-6",
   "https://www.biorxiv.org/content/10.64898/2026.08.07.743613v1?rss=1.full",
-  "https://www.nature.com/articles/s41586-026-10892-y"
+  "https://www.nature.com/articles/s41586-026-10892-y",
+  "https://www.nature.com/articles/d41586-026-02537-x"
  ],
  "topics": [
   "IQ-TREE",
@@ -15,7 +16,7 @@
   "antiSMASH"
  ],
  "model_cache": {
-  "gemini_date": "2026-08-25",
+  "gemini_date": "2026-08-26",
   "gemini_models": [
    "gemini-3.7-flash",
    "gemini-3.6-flash",
@@ -30,7 +31,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 11,
+  "count": 12,
   "target": 22
  }
 }

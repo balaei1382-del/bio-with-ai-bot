@@ -15,7 +15,8 @@
   "Prokka",
   "antiSMASH",
   "FastQC",
-  "BWA"
+  "BWA",
+  "NCBI"
  ],
  "model_cache": {
   "gemini_date": "2026-08-26",
@@ -33,7 +34,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 14,
+  "count": 15,
   "target": 22
  }
 }

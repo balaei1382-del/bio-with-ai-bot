@@ -17,6 +17,10 @@ on:
         description: 'نادیده‌گرفتن سقف روزانه (پست الزامی)'
         type: boolean
         default: true
+      dry_run:
+        description: 'فقط تمرین: بدون ارسال به کانال و بدون AI'
+        type: boolean
+        default: false
 
   # ─── زمان‌بندی: هر ۳۰ دقیقه، ساعت ۳ تا ۲۰ UTC ───
   # یعنی ~۶:۳۰ تا ۲۱:۰۰ به وقت تهران (۳۶ بازه در روز)
@@ -60,7 +64,7 @@ jobs:
           FORCE_TYPE:     ${{ inputs.post_type != 'auto' && inputs.post_type || '' }}
           WITH_IMAGE:     ${{ inputs.with_image == false && '0' || '1' }}
           FORCE_POST:     ${{ inputs.force_post && '1' || '0' }}
-        run: python bot.py
+        run: python bot.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: ذخیره وضعیت (ضدتکرار + شمارنده روزانه)
         if: always()

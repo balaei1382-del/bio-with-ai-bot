@@ -2,7 +2,33 @@
 # -*- coding: utf-8 -*-
 """
 Bio with AI — ربات همه‌فن‌حریف کانال تلگرام
-با پشتیبانی از Nano Banana برای تولید تصویر
+============================================
+قابلیت‌ها:
+  ● چند کلید از چند سرویس (جمینای + Grok/xAI + OpenCode Zen + هر سرویس سازگار با OpenAI)
+  ● اولویت‌بندی مدل‌ها برای هر کلید: مثلاً برای جمینای اول Pro (سهمیه رایگان محدود)
+    بعد Flash (سهمیه بزرگ‌تر) — با تعویض خودکار و «خنک‌سازی» پس از محدودیت (429)
+  ● پنج نوع محتوا: news / trend (ترند داغ روز دنیا) / tip / roadmap (از مقاله واقعی) / tool
+  ● لحن زنده و امروزی؛ فرمت‌های واقعی تلگرام: پررنگ، زیرخط، خط‌خورده، کد درون‌خطی،
+    بلوک کد با syntax highlight، اسپویلر، نقل‌قول (blockquote/expandable)
+  ● دکمه‌های شیشه‌ای زیر هر پست (لینک منبع + عضویت در کانال) و نظرسنجی بومی تلگرام
+  ● هر پست: منبع واقعی + لینک کانال در انتها + ایموجی زنده
+  ● تصویر مرتبط با متن (ساخت با جمینای) + کپشن کوتاه + لاگ دقیق علت شکست در صورت خطا
+  ● بدون سقف یا محدودیت زمانی به‌صورت پیش‌فرض — هر بار که Actions اجرا شود (هر ۳۰ دقیقه) پست می‌گذارد
+    (برای بازگرداندن سقف قدیمی: ENABLE_DAILY_CAP=1 و DAILY_MIN/DAILY_MAX)
+  ● حافظه ضدتکرار در state/posted.json
+
+قالب AI_CONFIG (در GitHub Secret):
+{
+  "gemini_models": ["gemini-3-pro", "gemini-2.5-pro", "gemini-2.5-flash"],
+  "gemini": [
+    {"api_key": "AIza..."},
+    {"api_key": "AIza...", "models": ["gemini-2.5-pro", "gemini-2.5-flash"]}
+  ],
+  "openai_compatible": [
+    {"base_url": "https://api.x.ai/v1",        "api_key": "xai-...",   "model": "grok-4.1-fast"},
+    {"base_url": "https://opencode.ai/zen/v1", "api_key": "sk-...",    "model": "grok-code-fast-1"}
+  ]
+}
 """
 
 import base64
@@ -23,40 +49,34 @@ import requests
 # ----------------------------------------------------------------------
 BOT_TOKEN      = os.environ.get("BOT_TOKEN", "").strip()
 CHANNEL_ID     = os.environ.get("CHANNEL_ID", "@Bio_with_AI").strip()
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-AI_CONFIG      = os.environ.get("AI_CONFIG", "").strip()
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()          # حالت قدیمی تک‌کلید
+AI_CONFIG      = os.environ.get("AI_CONFIG", "").strip()               # حالت چند-سرویسی
 
+# مدل‌های جمینای به‌صورت خودکار «کشف» می‌شوند: ربات موقع اجرا فهرست واقعیِ
+# مدل‌های در دسترسِ کلید را می‌گیرد و بهترینِ رایگان (Flash) را برمی‌گزیند.
+# مقادیر زیر فقط وقتی استفاده می‌شوند که کشف ممکن نباشد:
 FALLBACK_GEMINI_MODELS = [m.strip() for m in os.environ.get("GEMINI_MODELS",
-    "gemini-3.6-flash, gemini-3.7-flash, gemini-2.5-flash").split(",") if m.strip()]
-
-# مدل‌های تصویری Nano Banana (به ترتیب اولویت)
-NANO_BANANA_MODELS = [
-    "gemini-3.1-flash-image",           # جدیدترین Nano Banana
-    "gemini-3.1-flash-lite-image",      # نسخه سبک
-    "gemini-3.1-flash-image-preview",   # نسخه پیش‌نمایش
-    "gemini-3-pro-image",               # نسخه Pro
-    "gemini-3-pro-image-preview",       # نسخه Pro پیش‌نمایش
-    "gemini-2.5-flash-image",           # Nano Banana اصلی
-]
-
-INCLUDE_PRO = os.environ.get("INCLUDE_PRO", "0") == "1"
-CHANNEL_LINK_ENV = os.environ.get("CHANNEL_LINK", "").strip()
+    "gemini-flash-latest, gemini-2.5-flash, gemini-2.0-flash").split(",") if m.strip()]
+GEMINI_IMAGE_FALLBACK = ["gemini-2.5-flash-image", "gemini-3.1-flash-image", "gemini-3.1-flash-lite-image"]
+INCLUDE_PRO = os.environ.get("INCLUDE_PRO", "0") == "1"   # 0 = فقط مدل‌های رایگان (Flash)
+CHANNEL_LINK_ENV = os.environ.get("CHANNEL_LINK", "").strip()  # برای کانال خصوصی: لینک دعوت
 
 MAX_AGE_DAYS   = int(os.environ.get("MAX_AGE_DAYS", "10"))
-FORCE_TYPE     = os.environ.get("FORCE_TYPE", "").strip().lower()
+FORCE_TYPE     = os.environ.get("FORCE_TYPE", "").strip().lower()      # news|trend|tip|roadmap|tool
 CONTENT_MIX    = os.environ.get("CONTENT_MIX", "news:4,trend:4,tip:3,roadmap:2,tool:2")
 WITH_IMAGE     = os.environ.get("WITH_IMAGE", "1") == "1"
 FULL_TEXT_AFTER_IMAGE = os.environ.get("FULL_TEXT_AFTER_IMAGE", "1") == "1"
 BASE_TAGS      = os.environ.get("BASE_TAGS", "#بیوانفورماتیک #زیست_شناسی #هوش_مصنوعی").strip()
 
+# سقف پست روزانه — هر روز صبح یک عدد تصادفی بین این دو انتخاب می‌شود
 DAILY_MIN = int(os.environ.get("DAILY_MIN", "20"))
 DAILY_MAX = int(os.environ.get("DAILY_MAX", "30"))
-FORCE_POST = os.environ.get("FORCE_POST", "") == "1"
+FORCE_POST = os.environ.get("FORCE_POST", "") == "1"                   # نادیده‌گرفتن سقف (اجرای دستی)
 
-DRY_RUN   = "--dry-run" in sys.argv
-SELFTEST  = "--selftest" in sys.argv
-MOCK_LLM  = os.environ.get("MOCK_LLM", "") == "1"
-TELEGRAM_DRY = os.environ.get("TELEGRAM_DRY", "") == "1"
+DRY_RUN   = "--dry-run" in sys.argv          # فقط انتخاب محتوا، بدون AI/تلگرام
+SELFTEST  = "--selftest" in sys.argv         # تست داخلی بدون شبکه
+MOCK_LLM  = os.environ.get("MOCK_LLM", "") == "1"          # جایگزینی AI با پاسخ ساختگی
+TELEGRAM_DRY = os.environ.get("TELEGRAM_DRY", "") == "1"   # اجرا کامل بدون ارسال
 
 TEHRAN_TZ = timezone(timedelta(hours=3, minutes=30))
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -70,13 +90,15 @@ def log(msg: str) -> None:
 
 
 # ======================================================================
-#  موتورهای هوش مصنوعی
+#  موتورهای هوش مصنوعی — چند کلید، چند مدل، تعویض خودکار
 # ======================================================================
 class Engine:
+    """یک کلید API. برای جمینای می‌تواند چند مدل به ترتیب اولویت داشته باشد."""
+
     def __init__(self, kind: str, api_key: str, models: list[str], base_url: str = ""):
-        self.kind = kind
+        self.kind = kind                    # "gemini" | "openai"
         self.api_key = api_key
-        self.models = models
+        self.models = models                # لیست مدل‌ها به ترتیب اولویت
         self.base_url = base_url.rstrip("/")
         self.id = f"{kind}:{api_key[-6:]}"
 
@@ -85,6 +107,7 @@ class Engine:
 
 
 def load_engines() -> list[Engine]:
+    """ساخت فهرست موتورها از AI_CONFIG (یا GEMINI_API_KEY برای سازگاری قدیمی)."""
     engines: list[Engine] = []
     raw_cfg = os.environ.get("AI_CONFIG", "").strip()
     legacy = os.environ.get("GEMINI_API_KEY", "").strip()
@@ -92,7 +115,13 @@ def load_engines() -> list[Engine]:
         try:
             cfg = json.loads(raw_cfg)
         except json.JSONDecodeError as exc:
-            raise RuntimeError(f"AI_CONFIG معتبر نیست: {exc}")
+            raise RuntimeError(
+                f"AI_CONFIG معتبر نیست: {exc.msg} — خط {exc.lineno}، ستون {exc.colno}. "
+                "به بخش Secrets ریپو بروید و AI_CONFIG را اصلاح کنید. "
+                "خطاهای رایج: کامای جاافتاده یا اضافه، کوتیشن خمیده (” « ») به‌جای \"، "
+                "یا مقداری که داخل \"...\" گذاشته نشده. "
+                "راه آسان: فایل config-builder.html را در مرورگر باز کنید و JSON سالم بسازید."
+            ) from exc
         global PINNED_GEMINI_MODELS
         PINNED_GEMINI_MODELS = [str(m).strip() for m in cfg.get("gemini_models", []) if str(m).strip()]
         default_models = PINNED_GEMINI_MODELS or FALLBACK_GEMINI_MODELS
@@ -113,16 +142,15 @@ def load_engines() -> list[Engine]:
     return engines
 
 
-ENGINES: list[Engine] = []
-PINNED_GEMINI_MODELS: list[str] = []
+ENGINES: list[Engine] = []   # در main()/selftest() از AI_CONFIG خوانده می‌شود
+PINNED_GEMINI_MODELS: list[str] = []  # اگر کاربر در AI_CONFIG مدل خاصی خواسته باشد
 
 
 # ----------------------------------------------------------------------
-#  کشف خودکار مدل‌ها
+#  کشف خودکار مدل‌های در دسترس (دیگر هیچ اسم مدلی حدس زده نمی‌شود)
 # ----------------------------------------------------------------------
-BAD_GEMINI = ("tts", "embedding", "aqa", "native-audio", "live",
-              "veo", "imagen", "learnlm", "gemma", "robotics", "lyria",
-              "computer-use", "antigravity", "deep-research")
+BAD_GEMINI = ("image", "tts", "embedding", "aqa", "native-audio", "live",
+              "veo", "imagen", "learnlm", "gemma", "robotics")
 
 
 def _model_version(name: str) -> float:
@@ -131,6 +159,8 @@ def _model_version(name: str) -> float:
 
 
 def rank_gemini_models(ids: list[str], pinned: list[str] | None = None) -> list[str]:
+    """مرتب‌سازی مدل‌های کشف‌شده: اول مدل‌های پیشنهادی کاربر (اگر موجودند)،
+    بعد Flashهای جدید (رایگان)؛ پرو/اولترا حذف می‌شوند مگر INCLUDE_PRO=1."""
     pinned = pinned or []
     ids = list(dict.fromkeys(ids))
     chat, chosen = [], []
@@ -138,55 +168,106 @@ def rank_gemini_models(ids: list[str], pinned: list[str] | None = None) -> list[
         s = i.lower()
         if any(b in s for b in BAD_GEMINI):
             continue
-        if "image" in s:
-            continue  # مدل‌های تصویری جداگانه استفاده می‌شن
         if not INCLUDE_PRO and ("pro" in s or "ultra" in s):
-            continue
+            continue                                # فقط مدل‌های رایگان (حتی اگر در تنظیمات آمده باشد)
         if i in pinned and i not in chosen:
-            chosen.append(i)
+            chosen.append(i)                        # خواسته صریح کاربر — و واقعاً موجود است
         elif i not in chosen:
             chat.append(i)
     chat.sort(key=lambda i: ("flash" not in i.lower(), -_model_version(i), len(i)))
     return (chosen + chat)[:4]
 
 
+def discover_gemini_models(api_key: str) -> tuple[list[str], list[str]]:
+    """گرفتن فهرست واقعی مدل‌های کلید از گوگل → (مدل‌های متنی، مدل‌های تصویری)"""
+    r = requests.get(
+        "https://generativelanguage.googleapis.com/v1beta/models",
+        params={"key": api_key, "pageSize": 200}, timeout=30,
+    )
+    r.raise_for_status()
+    chat_ids, image_ids = [], []
+    for m in r.json().get("models", []):
+        if "generateContent" not in m.get("supportedGenerationMethods", []):
+            continue
+        mid = (m.get("name") or "").split("/")[-1]
+        if not mid:
+            continue
+        if "image" in mid.lower():
+            image_ids.append(mid)
+        elif not any(b in mid.lower() for b in BAD_GEMINI):
+            chat_ids.append(mid)
+    return chat_ids, image_ids
+
+
+def pick_openai_model(ids: list[str], failed: str) -> str | None:
+    """وقتی مدلِ تنظیم‌شده پیدا نشد، از فهرست /models یک مدل مناسب انتخاب کن."""
+    ids = [i for i in ids if i]
+    if not ids:
+        return None
+    prefs = ["flash", "fast", "free", "mini", "chat", "deepseek", "qwen", "llama", "grok"]
+
+    def rank(i):
+        s = i.lower()
+        pref_idx = len(prefs)
+        for k in range(len(prefs)):
+            if prefs[k] in s:
+                pref_idx = k
+                break
+        return (i == failed, pref_idx, len(i))
+
+    return sorted(ids, key=rank)[0]
+
+
+def pin_openai_model(eng: Engine, state: dict) -> str | None:
+    """برای سرویس‌های سازگار با OpenAI: کشف مدل از /models و پین کردن."""
+    try:
+        r = requests.get(f"{eng.base_url}/models",
+                         headers={"Authorization": f"Bearer {eng.api_key}"}, timeout=30)
+        if r.status_code != 200:
+            return None
+        ids = [m.get("id") for m in r.json().get("data", []) if isinstance(m, dict)]
+    except Exception:
+        return None
+    best = pick_openai_model(ids, eng.models[0] if eng.models else "")
+    if best:
+        eng.models = [best]
+        state.setdefault("model_pin", {})[eng.id] = best
+        log(f"📌 برای {eng.id} مدل در دسترس «{best}» انتخاب شد")
+        return best
+    return None
+
+
+def apply_gemini_models(models: list[str]) -> None:
+    for e in ENGINES:
+        if e.kind == "gemini" and models:
+            e.models = models
+
+
 def refresh_gemini_models(state: dict, force: bool = False) -> None:
+    """کشف روزانه مدل‌های جمینای (کش در state). اگر کشف نشد، لیست پیش‌فرض می‌ماند."""
     cache = state.setdefault("model_cache", {})
     today = datetime.now(TEHRAN_TZ).strftime("%Y-%m-%d")
     if not force and cache.get("gemini_date") == today and cache.get("gemini_models"):
+        apply_gemini_models(cache["gemini_models"])
         return
     for e in ENGINES:
         if e.kind != "gemini":
             continue
         try:
-            r = requests.get(
-                "https://generativelanguage.googleapis.com/v1beta/models",
-                params={"key": e.api_key, "pageSize": 200}, timeout=30,
-            )
-            r.raise_for_status()
-            chat_ids = []
-            for m in r.json().get("models", []):
-                if "generateContent" not in m.get("supportedGenerationMethods", []):
-                    continue
-                mid = (m.get("name") or "").split("/")[-1]
-                if not mid:
-                    continue
-                if any(b in mid.lower() for b in BAD_GEMINI):
-                    continue
-                if "image" in mid.lower():
-                    continue
-                chat_ids.append(mid)
-            if chat_ids:
-                ranked = rank_gemini_models(chat_ids, PINNED_GEMINI_MODELS)
-                cache.update(gemini_date=today, gemini_models=ranked)
-                for eng2 in ENGINES:
-                    if eng2.kind == "gemini":
-                        eng2.models = ranked
-                log(f"🔎 مدل‌های متنی: {ranked}")
-                return
+            chat_ids, image_ids = discover_gemini_models(e.api_key)
         except Exception as exc:
-            log(f"⚠ کشف مدل‌ها نشد: {str(exc)[:90]}")
-    log("⚠ استفاده از مدل‌های پیش‌فرض")
+            log(f"⚠ کشف مدل‌ها با کلید …{e.api_key[-6:]} نشد: {str(exc)[:90]}")
+            continue
+        if chat_ids:
+            ranked = rank_gemini_models(chat_ids, PINNED_GEMINI_MODELS)
+            cache.update(gemini_date=today, gemini_models=ranked,
+                         gemini_image=image_ids[:3] or cache.get("gemini_image", []))
+            apply_gemini_models(ranked)
+            log(f"🔎 مدل‌های جمینایِ در دسترس: {ranked}")
+            if image_ids:
+                log(f"🖼 مدل‌های تصویریِ در دسترس: {image_ids[:3]}")
+            return
+    log("⚠ کشف مدل‌های جمینای ممکن نشد؛ از لیست پیش‌فرض استفاده می‌شود")
 
 
 def load_state() -> dict:
@@ -209,11 +290,13 @@ def set_cooldown(state: dict, cid: str, minutes: int = 90) -> None:
     state.setdefault("cooldowns", {})[cid] = (
         datetime.now(timezone.utc) + timedelta(minutes=minutes)
     ).isoformat()
+    log(f"⏸ «{cid}» به مدت {minutes} دقیقه کنار گذاشته شد")
 
 
 def mark_dead(state: dict, eng: Engine) -> None:
     if eng.id not in state.setdefault("dead_engines", []):
         state["dead_engines"].append(eng.id)
+    log(f"⛔ کلید {eng.id} نامعتبر/غیرفعال است — کنار گذاشته شد")
 
 
 def candidate_id(eng: Engine, model: str) -> str:
@@ -221,17 +304,29 @@ def candidate_id(eng: Engine, model: str) -> str:
 
 
 def ordered_candidates(state: dict) -> list[tuple[Engine, str]]:
+    """همه (کلید، مدل)ها به ترتیب اولویت؛ موارد خنک‌شده/مرده ته لیست می‌روند."""
     now = datetime.now(timezone.utc)
     dead = set(state.get("dead_engines", []))
     cands = [(e, m) for e in ENGINES if e.id not in dead for m in e.models]
-    ready = [c for c in cands if not state.get("cooldowns", {}).get(candidate_id(*c))]
-    if not ready:
+
+    def active(c):
+        until = state.get("cooldowns", {}).get(candidate_id(*c))
+        if not until:
+            return True
+        try:
+            return datetime.fromisoformat(until) > now is False
+        except ValueError:
+            return True
+
+    ready = [c for c in cands if active(c)]
+    if not ready:  # همه در حالت خنک‌سازی‌اند → آزادسازی همه
         state["cooldowns"] = {}
         ready = cands
     return ready
 
 
 def extract_json(text: str) -> dict:
+    """استخراج اولین JSON معتبر از متن پاسخ (حتی داخل ```fence)."""
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text.strip())
     start = text.find("{")
     if start < 0:
@@ -284,41 +379,96 @@ def llm_openai(eng: Engine, model: str, system: str, user: str) -> str:
 
 MOCK_RESPONSE = json.dumps({
     "title": "هوش مصنوعی ساختار پروتئین‌ها را در چند ثانیه رمزگشایی می‌کند",
-    "body": "پژوهشگران با ترکیب مدل‌های زبانی بزرگ و داده‌های ساختاری موفق شدند فرایند پیش‌بینی ساختار پروتئین را ده‌ها برابر سریع‌تر کنند.",
-    "why": "این روش تحلیل شبکه‌های مولکولی را در چند دقیقه انجام می‌دهد.",
-    "caption": "مدل تازه هوش مصنوعی، پیش‌بینی ساختار پروتئین را ده‌ها برابر سریع‌تر کرد.",
+    "body": "پژوهشگران با ترکیب مدل‌های زبانی بزرگ و داده‌های ساختاری موفق شدند فرایند پیش‌بینی ساختار پروتئین را ده‌ها برابر سریع‌تر کنند. این دستاورد مسیر طراحی داروهای تازه را کوتاه‌تر می‌کند.",
+    "why": "این روش تحلیل شبکه‌های مولکولی را که پیشتر هفته‌ها طول می‌کشید در چند دقیقه انجام می‌دهد.",
+    "caption": "مدل تازه هوش مصنوعی، پیش‌بینی ساختار پروتئین را ده‌ها برابر سریع‌تر کرد؛ گامی بزرگ برای طراحی دارو.",
     "image_prompt_en": "Clean scientific illustration of an AI neural network analyzing a glowing 3D protein structure, modern infographic style, blue and green palette",
     "tags": ["پروتئین", "هوش_مصنوعی", "طراحی_دارو"],
 }, ensure_ascii=False)
 
 
 def call_llm(state: dict, system: str, user: str) -> dict:
+    """فراخوانی LLM با چرخش خودکار روی (کلید، مدل)ها؛
+    اگر مدلی وجود نداشت، خودش مدل در دسترس را کشف و جایگزین می‌کند."""
     if MOCK_LLM or SELFTEST:
         return extract_json(MOCK_RESPONSE)
     errors = []
-    for eng, model in ordered_candidates(state):
-        fn = llm_gemini if eng.kind == "gemini" else llm_openai
-        try:
-            raw = fn(eng, model, system, user)
-            parsed = extract_json(raw)
-            log(f"✔ پاسخ از {candidate_id(eng, model)}")
-            return parsed
-        except Exception as exc:
-            msg = str(exc)
-            errors.append(f"{candidate_id(eng, model)}: {msg[:160]}")
-            if " 429" in msg:
-                set_cooldown(state, candidate_id(eng, model), minutes=15)
-                time.sleep(3)
-            elif " 401" in msg or " 403" in msg:
-                mark_dead(state, eng)
-            else:
-                log(f"⚠ {candidate_id(eng, model)}: {msg[:140]}")
-                time.sleep(2)
+    for _pass in range(3):                     # تا ۲ بار «کشف مدل جدید و شروع مجدد»
+        restart = False
+        for eng, model in ordered_candidates(state):
+            fn = llm_gemini if eng.kind == "gemini" else llm_openai
+            try:
+                raw = fn(eng, model, system, user)
+                parsed = extract_json(raw)
+                log(f"✔ پاسخ از {candidate_id(eng, model)}")
+                return parsed
+            except Exception as exc:
+                msg = str(exc)
+                errors.append(f"{candidate_id(eng, model)}: {msg[:160]}")
+                if " 429" in msg or " 402" in msg or "RESOURCE_EXHAUSTED" in msg:
+                    set_cooldown(state, candidate_id(eng, model), minutes=90)
+                elif " 401" in msg or " 403" in msg:
+                    mark_dead(state, eng)
+                elif " 404" in msg or (" 400" in msg and "model" in msg.lower()):
+                    # مدل وجود ندارد → کشف مدل در دسترس و تلاش دوباره
+                    log(f"↷ مدل {model} در دسترس نیست؛ جست‌وجوی مدل جایگزین…")
+                    new = None
+                    if eng.kind == "openai":
+                        new = pin_openai_model(eng, state)
+                    else:
+                        refresh_gemini_models(state, force=True)
+                        new = eng.models[0] if eng.models else None
+                    if new and new != model:
+                        restart = True
+                        break
+                else:                                   # خطای گذرا — فقط ثبت
+                    log(f"⚠ {candidate_id(eng, model)}: {msg[:140]}")
+                    time.sleep(3)
+        if not restart:
+            break
     raise RuntimeError("هیچ‌کدام از موتورهای هوش مصنوعی پاسخ ندادند:\n" + "\n".join(errors[:8]))
 
 
 # ----------------------------------------------------------------------
-# تولید تصویر با Nano Banana (جمینای)
+#  ساخت پرامپت تصویر از روی متنِ نهاییِ پست (فراخوانی دوم و جداگانه‌ی AI)
+# ----------------------------------------------------------------------
+def build_image_prompt(state: dict, full_text: str, fallback: str = "") -> str:
+    """متن نهاییِ ساخته‌شده‌ی پست را می‌گیرد و در یک فراخوانیِ جداگانه از AI
+    می‌خواهد یک پرامپتِ انگلیسیِ دقیق، بسیار مرتبط و علمی برای ساخت تصویر با
+    مدل تصویری جمینای (نانو بنانا) بنویسد. اگر این فراخوانی شکست بخورد،
+    مقدار fallback (مثلاً image_prompt_en اولیه یا عنوان پست) برگردانده می‌شود."""
+    system = (
+        "You write image-generation prompts for Google's Gemini native image "
+        "model (known as 'Nano Banana'). You will be given a social-media post, "
+        "often written in Persian, about a science/AI/biology topic. Read and "
+        "understand the ACTUAL content of the post (not just its topic in "
+        "general), then write ONE short, vivid English prompt that will make "
+        "Nano Banana generate an image that is:\n"
+        "1) highly and specifically relevant to what this exact post says "
+        "(not a generic stock illustration of the broad topic),\n"
+        "2) scientifically accurate — correct anatomy, correct molecular/"
+        "biological/physical structures, no invented pseudo-science,\n"
+        "3) clean and modern: infographic / scientific-illustration style, "
+        "no embedded text, letters, numbers, watermarks, or logos in the image,\n"
+        "4) safe-for-work and suitable for a public Telegram channel.\n"
+        "Reply with ONLY a JSON object, nothing else: "
+        '{"image_prompt_en": "..."}'
+    )
+    user = f"متن کامل پست:\n{full_text[:3000]}"
+    try:
+        result = call_llm(state, system, user)
+        prompt = str(result.get("image_prompt_en") or "").strip()
+        if prompt:
+            log(f"🖋 پرامپت تصویر از روی متن نهایی ساخته شد: {prompt[:120]}")
+            return prompt
+        log("⚠ پاسخ AI برای پرامپت تصویر خالی بود؛ استفاده از مقدار جایگزین")
+    except Exception as exc:
+        log(f"⚠ ساخت پرامپت تصویر از روی متن نهایی ناموفق بود: {str(exc)[:200]}")
+    return fallback
+
+
+# ----------------------------------------------------------------------
+# تولید تصویر با جمینای (روی همه کلیدهای زنده جمینای امتحان می‌شود)
 # ----------------------------------------------------------------------
 TINY_PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQAB"
@@ -327,116 +477,55 @@ TINY_PNG = base64.b64decode(
 
 
 def generate_image(state: dict, prompt_en: str) -> bytes | None:
-    """تولید تصویر با Nano Banana (جمینای) - با retry و تعویض مدل"""
     if MOCK_LLM or SELFTEST:
         return TINY_PNG
-    
-    gemini_keys = [e for e in ENGINES if e.kind == "gemini" and e.id not in state.get("dead_engines", [])]
-    
+    image_models = state.get("model_cache", {}).get("gemini_image") or GEMINI_IMAGE_FALLBACK
+    dead = set(state.get("dead_engines", []))
+    gemini_keys = [e for e in ENGINES if e.kind == "gemini" and e.id not in dead]
     if not gemini_keys:
-        log("⚠ تصویر: هیچ کلید جمینای زنده‌ای نیست")
+        log("⚠ تصویر: هیچ کلید جمینای زنده‌ای برای ساخت تصویر موجود نیست")
         return None
-    
-    # ترکیب‌های (کلید، مدل) برای تست
-    combinations = []
+    if not image_models:
+        log("⚠ تصویر: هیچ مدل تصویری کشف/تنظیم نشده (model_cache خالی است)")
+        return None
+    tried = []
     for eng in gemini_keys:
-        for model in NANO_BANANA_MODELS:
-            combinations.append((eng, model))
-    
-    log(f"🎨 تلاش برای تولید تصویر با {len(combinations)} ترکیب کلید/مدل...")
-    
-    for attempt, (eng, model) in enumerate(combinations):
-        log(f"🖼 تلاش {attempt + 1}/{len(combinations)}: {model} روی کلید ...{eng.api_key[-6:]}")
-        
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-            
-            payload = {
-                "contents": [{
-                    "role": "user",
-                    "parts": [{
-                        "text": f"Generate a high-quality scientific illustration: {prompt_en}"
-                    }]
-                }],
-                "generationConfig": {
-                    "responseModalities": ["IMAGE", "TEXT"],
-                    "temperature": 0.4
-                }
-            }
-            
-            resp = requests.post(
-                url,
-                params={"key": eng.api_key},
-                json=payload,
-                timeout=90
-            )
-            
-            if resp.status_code == 200:
+        for model in image_models:
+            tried.append(f"{eng.id}/{model}")
+            try:
+                resp = requests.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                    params={"key": eng.api_key},
+                    json={
+                        "contents": [{"role": "user", "parts": [{"text": prompt_en}]}],
+                        "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
+                    },
+                    timeout=180,
+                )
+                if resp.status_code != 200:
+                    log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]} نشد: HTTP {resp.status_code} — {resp.text[:220]}")
+                    if resp.status_code in (401, 403):
+                        mark_dead(state, eng)
+                        break                       # این کلید مرده — سراغ کلید بعدی
+                    continue
                 body = resp.json()
-                
-                # بررسی تصویر
-                candidates = body.get("candidates", [])
-                for cand in candidates:
-                    parts = cand.get("content", {}).get("parts", [])
-                    for part in parts:
-                        # روش 1: inlineData
-                        if "inlineData" in part:
-                            data = part["inlineData"].get("data", "")
-                            if data:
-                                try:
-                                    image = base64.b64decode(data)
-                                    if len(image) > 1000:
-                                        log(f"✅ تصویر با {model} ساخته شد ({len(image) // 1024} KB)")
-                                        return image
-                                except Exception as exc:
-                                    log(f"⚠ خطای decode: {exc}")
-                        
-                        # روش 2: fileData
-                        if "fileData" in part:
-                            file_uri = part["fileData"].get("fileUri", "")
-                            if file_uri:
-                                log(f"📁 دانلود از: {file_uri}")
-                                img_resp = requests.get(file_uri, timeout=30)
-                                if img_resp.status_code == 200 and len(img_resp.content) > 1000:
-                                    log(f"✅ تصویر دانلود شد ({len(img_resp.content) // 1024} KB)")
-                                    return img_resp.content
-                
-                log(f"⚠ {model}: پاسخ 200 ولی بدون تصویر")
-                
-            elif resp.status_code == 429:
-                log(f"⏳ {model}: محدودیت نرخ - صبر ۵ ثانیه...")
-                time.sleep(5)
-                continue
-                
-            elif resp.status_code == 404:
-                log(f"❌ {model}: وجود ندارد")
-                continue
-                
-            elif resp.status_code in (401, 403):
-                log(f"⛔ کلید ...{eng.api_key[-6:]} نامعتبر")
-                mark_dead(state, eng)
-                break
-                
-            else:
-                log(f"⚠ {model}: HTTP {resp.status_code} - {resp.text[:100]}")
-                continue
-                
-        except requests.Timeout:
-            log(f"⏱ {model}: تایم‌اوت")
-            continue
-        except Exception as exc:
-            log(f"⚠ {model}: خطا - {str(exc)[:100]}")
-            continue
-        
-        # فاصله بین درخواست‌ها
-        time.sleep(3)
-    
-    log("❌ تولید تصویر با همه مدل‌ها ناموفق بود")
+                cands = body.get("candidates") or [{}]
+                parts = ((cands[0] or {}).get("content") or {}).get("parts", [])
+                for p in parts:
+                    inline = p.get("inlineData") or {}
+                    if inline.get("data"):
+                        data = base64.b64decode(inline["data"])
+                        log(f"🖼 تصویر ساخته شد ({len(data) // 1024} KB) با {model}")
+                        return data
+                log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]}: پاسخ بدون داده تصویر — {json.dumps(body, ensure_ascii=False)[:220]}")
+            except Exception as exc:
+                log(f"⚠ تصویر با {model} روی …{eng.api_key[-6:]} با خطا: {exc}")
+    log(f"❌ ساخت تصویر با هر {len(tried)} ترکیب کلید/مدل ناموفق بود: {', '.join(tried)}")
     return None
 
 
 # ======================================================================
-#  منابع خبری
+#  منابع خبری (RSS)
 # ======================================================================
 FEEDS = [
     {"url": "https://www.sciencedaily.com/rss/plants_animals/biology.xml",   "name": "ScienceDaily Biology"},
@@ -470,34 +559,6 @@ def is_relevant(title: str, summary: str) -> bool:
     return any(k in text for k in RELEVANT_KEYWORDS)
 
 
-def clean_source_url(link: str, source_name: str = "") -> str:
-    if not link:
-        return ""
-    link = link.strip()
-    if "nature.com" in link:
-        link = re.sub(r'\?.*$', '', link)
-        if link.endswith(('.rss', '.xml')):
-            link = link.rsplit('.', 1)[0]
-        return link
-    elif "sciencedaily.com" in link:
-        return re.sub(r'\?.*$', '', link)
-    elif "biorxiv.org" in link:
-        if "content" in link and not link.endswith(".full"):
-            return link + ".full"
-        return link
-    elif "phys.org" in link:
-        return link
-    elif "plos.org" in link:
-        return link
-    elif "trends.google.com" in link:
-        return link
-    elif "news.ycombinator.com" in link or "hnrss.org" in link:
-        return link
-    if link.endswith(('.xml', '.rss', '.atom')):
-        link = link.rsplit('.', 1)[0]
-    return link
-
-
 def fetch_feed_items(only_roadmap_pool: bool = False) -> list[dict]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=MAX_AGE_DAYS)
     items = []
@@ -511,10 +572,9 @@ def fetch_feed_items(only_roadmap_pool: bool = False) -> list[dict]:
             count = 0
             for e in parsed.entries:
                 title = (getattr(e, "title", "") or "").strip()
-                raw_link = (getattr(e, "link", "") or "").strip()
-                if not title or not raw_link:
+                link = (getattr(e, "link", "") or "").strip()
+                if not title or not link:
                     continue
-                link = clean_source_url(raw_link, feed["name"])
                 summary = re.sub(r"<[^>]+>", " ", getattr(e, "summary", "") or "").strip()[:2000]
                 pub = getattr(e, "published_parsed", None) or getattr(e, "updated_parsed", None)
                 if pub is not None and datetime(*pub[:6], tzinfo=timezone.utc) < cutoff:
@@ -530,6 +590,9 @@ def fetch_feed_items(only_roadmap_pool: bool = False) -> list[dict]:
     return items
 
 
+# ----------------------------------------------------------------------
+# منابع «ترند روز دنیا» — گوگل‌ترندز + هکرنیوز (بدون نیاز به کلید API)
+# ----------------------------------------------------------------------
 TREND_FEEDS = [
     {"url": "https://trends.google.com/trending/rss?geo=US", "name": "Google Trends (US)"},
     {"url": "https://trends.google.com/trending/rss?geo=GB", "name": "Google Trends (UK)"},
@@ -538,6 +601,7 @@ TREND_FEEDS = [
 
 
 def fetch_trend_items() -> list[dict]:
+    """پرطرفدارترین سوژه‌های همین امروزِ دنیا؛ برخلاف fetch_feed_items فیلتر موضوعی سخت‌گیرانه ندارد."""
     items = []
     for feed in TREND_FEEDS:
         try:
@@ -547,10 +611,9 @@ def fetch_trend_items() -> list[dict]:
             count = 0
             for e in parsed.entries[:15]:
                 title = (getattr(e, "title", "") or "").strip()
-                raw_link = (getattr(e, "link", "") or "").strip()
-                if not title or not raw_link:
+                link = (getattr(e, "link", "") or "").strip()
+                if not title or not link:
                     continue
-                link = clean_source_url(raw_link, feed["name"])
                 summary = re.sub(r"<[^>]+>", " ", getattr(e, "summary", "") or "").strip()[:1000]
                 items.append({"title": title, "link": link, "summary": summary, "source": feed["name"]})
                 count += 1
@@ -562,73 +625,81 @@ def fetch_trend_items() -> list[dict]:
 
 
 # ======================================================================
-#  بانک ابزارها
+#  بانک ابزارها (لینک‌ها واقعی و رسمی‌اند)
 # ======================================================================
 TOPIC_BANK = [
-    {"name": "Galaxy Project", "url": "https://usegalaxy.org", "fa": "سرور آنلاین تحلیل داده‌های ژنومیک"},
-    {"name": "NCBI BLAST", "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi", "fa": "جست‌وجوی تشابه توالی"},
-    {"name": "AlphaFold DB", "url": "https://alphafold.ebi.ac.uk", "fa": "پیش‌بینی ساختار پروتئین"},
-    {"name": "UniProt", "url": "https://www.uniprot.org", "fa": "پایگاه داده پروتئین"},
-    {"name": "Ensembl", "url": "https://www.ensembl.org", "fa": "پایگاه ژنوم"},
-    {"name": "UCSC Genome Browser", "url": "https://genome.ucsc.edu", "fa": "مرورگر ژنوم"},
-    {"name": "KEGG", "url": "https://www.genome.jp/kegg", "fa": "مسیرهای متابولیک"},
-    {"name": "STRING", "url": "https://string-db.org", "fa": "شبکه پروتئین"},
-    {"name": "Biopython", "url": "https://biopython.org", "fa": "کتابخانه پایتون"},
-    {"name": "Bioconda", "url": "https://bioconda.github.io", "fa": "نصب ابزار بیوانفورماتیک"},
-    {"name": "QIIME 2", "url": "https://qiime2.org", "fa": "تحلیل میکروبیوم"},
-    {"name": "Snakemake", "url": "https://snakemake.github.io", "fa": "مدیریت ورک‌فلو"},
-    {"name": "Nextflow", "url": "https://www.nextflow.io", "fa": "ورک‌فلو موازی"},
-    {"name": "GATK", "url": "https://gatk.broadinstitute.org", "fa": "تنوع‌یابی ژنومی"},
-    {"name": "Cytoscape", "url": "https://cytoscape.org", "fa": "شبکه‌های مولکولی"},
-    {"name": "PyMOL", "url": "https://pymol.org", "fa": "تصویرسازی پروتئین"},
-    {"name": "GROMACS", "url": "https://www.gromacs.org", "fa": "دینامیک مولکولی"},
-    {"name": "IQ-TREE", "url": "http://www.iqtree.org", "fa": "درخت فیلوژنتیک"},
-    {"name": "InterPro", "url": "https://www.ebi.ac.uk/interpro", "fa": "دامنه پروتئینی"},
-    {"name": "Reactome", "url": "https://reactome.org", "fa": "مسیرهای بیولوژیکی"},
-    {"name": "Gene Ontology", "url": "http://geneontology.org", "fa": "واژه‌نامه ژن"},
-    {"name": "DAVID", "url": "https://david.ncifcrf.gov", "fa": "غنی‌سازی ژنی"},
-    {"name": "DESeq2", "url": "https://bioconductor.org/packages/release/bioc/html/DESeq2.html", "fa": "بیان افتراقی ژن"},
-    {"name": "Seurat", "url": "https://satijalab.org/seurat", "fa": "تک‌سلولی در R"},
-    {"name": "Scanpy", "url": "https://scanpy.readthedocs.io", "fa": "تک‌سلولی در پایتون"},
-    {"name": "ColabFold", "url": "https://colabfold.colab.google", "fa": "AlphaFold2 رایگان"},
-    {"name": "BUSCO", "url": "https://busco.ezlab.org", "fa": "کیفیت ژنوم"},
-    {"name": "Prokka", "url": "https://github.com/tseemann/prokka", "fa": "حاشیه‌نویسی ژنوم"},
-    {"name": "BWA", "url": "https://github.com/lh3/bwa", "fa": "هم‌ترازسازی DNA"},
-    {"name": "Samtools", "url": "https://www.htslib.org", "fa": "پردازش SAM/BAM"},
-    {"name": "FastQC", "url": "https://www.bioinformatics.babraham.ac.uk/projects/fastqc", "fa": "کنترل کیفیت"},
-    {"name": "RCSB PDB", "url": "https://www.rcsb.org", "fa": "ساختار پروتئین"},
-    {"name": "ChEMBL", "url": "https://www.ebi.ac.uk/chembl", "fa": "مولکول دارویی"},
-    {"name": "GTEx", "url": "https://gtexportal.org", "fa": "بیان ژن بافت"},
+    {"name": "Galaxy Project", "url": "https://usegalaxy.org", "fa": "سرور آنلاین تحلیل داده‌های ژنومیک بدون نیاز به کدنویسی"},
+    {"name": "NCBI BLAST", "url": "https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs", "fa": "ابزار جست‌وجوی تشابه توالی‌های بیولوژیکی"},
+    {"name": "AlphaFold DB", "url": "https://alphafold.ebi.ac.uk", "fa": "پایگاه پیش‌بینی ساختار پروتئین با هوش مصنوعی"},
+    {"name": "UniProt", "url": "https://www.uniprot.org", "fa": "جامع‌ترین پایگاه داده اطلاعات پروتئین‌ها"},
+    {"name": "Ensembl", "url": "https://www.ensembl.org", "fa": "پایگاه داده ژنوم و حاشیه‌نویسی ژن"},
+    {"name": "UCSC Genome Browser", "url": "https://genome.ucsc.edu", "fa": "مرورگر بصری ژنوم"},
+    {"name": "KEGG", "url": "https://www.genome.jp/kegg", "fa": "پایگاه مسیرهای متابولیک و عملکردی"},
+    {"name": "STRING", "url": "https://string-db.org", "fa": "تحلیل شبکه‌های برهم‌کنش پروتئین-پروتئین"},
+    {"name": "Biopython", "url": "https://biopython.org", "fa": "کتابخانه پایتون برای داده‌های بیولوژیکی"},
+    {"name": "Bioconda", "url": "https://bioconda.github.io", "fa": "نصب هزاران ابزار بیوانفورماتیک با Conda"},
+    {"name": "Galaxy Training", "url": "https://training.galaxyproject.org", "fa": "آموزش‌های رایگان تحلیل ژنومیک"},
+    {"name": "QIIME 2", "url": "https://qiime2.org", "fa": "پلتفرم تحلیل داده‌های میکروبیوم"},
+    {"name": "Snakemake", "url": "https://snakemake.github.io", "fa": "مدیریت ورک‌فلو برای تحلیل تکرارپذیر"},
+    {"name": "Nextflow", "url": "https://www.nextflow.io", "fa": "ورک‌فلو موازی برای داده‌های حجیم"},
+    {"name": "GATK", "url": "https://gatk.broadinstitute.org", "fa": "ابزارکیت تنوع‌یابی ژنومی"},
+    {"name": "Cytoscape", "url": "https://cytoscape.org", "fa": "بصری‌سازی شبکه‌های مولکولی"},
+    {"name": "PyMOL", "url": "https://pymol.org", "fa": "تصویرسازی حرفه‌ای ساختار پروتئین"},
+    {"name": "GROMACS", "url": "https://www.gromacs.org", "fa": "شبیه‌سازی دینامیک مولکولی"},
+    {"name": "IQ-TREE", "url": "http://www.iqtree.org", "fa": "ساخت درخت فیلوژنتیک"},
+    {"name": "InterPro", "url": "https://www.ebi.ac.uk/interpro", "fa": "تحلیل دامنه‌های پروتئینی"},
+    {"name": "Reactome", "url": "https://reactome.org", "fa": "پایگاه مسیرهای بیولوژیکی"},
+    {"name": "Gene Ontology", "url": "http://geneontology.org", "fa": "واژه‌نامه استاندارد عملکرد ژن‌ها"},
+    {"name": "DAVID", "url": "https://david.ncifcrf.gov", "fa": "غنی‌سازی عملکردی فهرست‌های ژنی"},
+    {"name": "DESeq2", "url": "https://bioconductor.org/packages/release/bioc/html/DESeq2.html", "fa": "تحلیل افتراقی بیان ژن در R"},
+    {"name": "Seurat", "url": "https://satijalab.org/seurat", "fa": "تحلیل داده تک‌سلولی در R"},
+    {"name": "Scanpy", "url": "https://scanpy.readthedocs.io", "fa": "تحلیل داده تک‌سلولی در پایتون"},
+    {"name": "ColabFold", "url": "https://colabfold.colab.google", "fa": "اجرای AlphaFold2 رایگان در گوگل‌کولب"},
+    {"name": "antiSMASH", "url": "https://antismash.secondarymetabolites.org", "fa": "شناسایی خوشه‌های ژنی متابولیت ثانویه"},
+    {"name": "BUSCO", "url": "https://busco.ezlab.org", "fa": "ارزیابی کیفیت ژنوم"},
+    {"name": "Prokka", "url": "https://github.com/tseemann/prokka", "fa": "حاشیه‌نویسی سریع ژنوم پروکاریوتی"},
+    {"name": "MG-RAST", "url": "https://www.mg-rast.org", "fa": "تحلیل ابری داده‌های متاژنومیک"},
+    {"name": "EMBL-EBI Services", "url": "https://www.ebi.ac.uk/services", "fa": "مجموعه سرویس‌های بیوانفورماتیک اروپا"},
+    {"name": "NCBI", "url": "https://www.ncbi.nlm.nih.gov", "fa": "بزرگ‌ترین مجموعه پایگاه‌های داده بیولوژیکی"},
+    {"name": "PubMed", "url": "https://pubmed.ncbi.nlm.nih.gov", "fa": "جست‌وجوی مقالات علوم زیستی"},
+    {"name": "BWA", "url": "https://github.com/lh3/bwa", "fa": "هم‌ترازسازی سریع توالی‌های DNA به ژنوم مرجع"},
+    {"name": "Samtools", "url": "https://www.htslib.org", "fa": "ابزارهای پردازش فایل‌های SAM/BAM"},
+    {"name": "FastQC", "url": "https://www.bioinformatics.babraham.ac.uk/projects/fastqc", "fa": "کنترل کیفیت داده‌های توالی‌یابی"},
+    {"name": "RCSB PDB", "url": "https://www.rcsb.org", "fa": "پایگاه داده ساختارهای سه‌بعدی پروتئین"},
+    {"name": "ChEMBL", "url": "https://www.ebi.ac.uk/chembl", "fa": "پایگاه داده بیوالفعال مولکول‌های دارویی"},
+    {"name": "GTEx", "url": "https://gtexportal.org", "fa": "پایگاه بیان ژن در بافت‌های سالم انسان"},
 ]
 
 TIP_ANGLES = [
     "یک ترفند کمترشناخته‌شده اما بسیار کاربردی",
     "یک اشتباه رایج کاربران و روش درست انجام کار",
     "یک بهینه‌سازی سرعت یا حافظه واقعی",
-    "یک گردش‌کاری پیشنهادی گام‌به‌گام",
-    "یک قابلیت مخفی یا گزینه پیشرفته",
-    "یک ترفند خط فرمان یا چندخط کد",
+    "یک گردش‌کاری (workflow) پیشنهادی گام‌به‌گام برای یک کار روزمره",
+    "یک قابلیت مخفی یا گزینه پیشرفته که کاربران عادی نمی‌دانند",
+    "یک ترفند خط فرمان یا چندخط کد که کار را ساده می‌کند",
 ]
 
 
 # ======================================================================
-#  ساخت پست
+#  ساخت پست — دستور سیستم و انواع محتوا
 # ======================================================================
-SYSTEM_PROMPT = """تو ادمین یک کانال تلگرام فارسی‌زبان به نام «Bio with AI» هستی؛ مخاطبانت دانشجویان، پژوهشگران و علاقه‌مندان زیست‌شناسی، بیوانفورماتیک و هوش مصنوعی‌اند.
+SYSTEM_PROMPT = """تو ادمین یک کانال تلگرام فارسی‌زبان به نام «Bio with AI» هستی؛ مخاطبانت دانشجویان، پژوهشگران و علاقه‌مندان زیست‌شناسی، بیوانفورماتیک و هوش مصنوعی‌اند — آدم‌های باهوش و کنجکاوی که از محتوای خشک و کتابی خسته شده‌اند.
 
-لحن: مثل یک آدم واقعی و باحال که خیلی علم بلده صحبت کن، نه مثل یک روبات. جمله اول باید مثل قلاب باشه.
+لحن: مثل یک آدم واقعی و باحال که خیلی علم بلده صحبت کن، نه مثل یک روبات یا مقاله دانشگاهی. جمله اول باید مثل قلاب باشه (سوال، ادعای عجیب، تضاد ذهنی) تا مخاطب رو نگه داره. از ریتم متنوع استفاده کن: جمله‌های کوتاه و ضربتی کنار جمله‌های توضیحی. می‌تونی محاوره‌ای و صمیمی بنویسی ولی هیچ‌وقت اطلاعات غلط یا اغراق‌شده نده.
 
-قواعد:
-۱. علمی و دقیق باش؛ اما هرگز خشک و رسمی ننویس.
-۲. هیچ داده یا ادعایی را از خودت نساز.
-۳. ایموجی را زنده و به‌جا به‌کار ببر (تا ۴-۵ تا).
-۴. از قالب‌بندی تلگرام استفاده کن:
-   - **پررنگ** → <b>
-   - __زیرخط__ → <u>
-   - ~~خط‌خورده~~ → <s>
-   - `کد` → <code>
-   - ||اسپویلر|| → <tg-spoiler>
-۵. پاسخ را فقط و فقط به شکل JSON معتبر بده."""
+قواعد ناگسستنی:
+۱. علمی و دقیق باش؛ اما هرگز خشک و رسمی ننویس. اصطلاح تخصصی انگلیسی مهم را یک بار داخل پرانتز بیاور.
+۲. هیچ داده، آمار یا ادعایی را از خودت نساز. فقط بر مبنای داده ورودی و دانش عمومی تثبیت‌شده بنویس. اگر چیزی نامعلوم است، حدس نزن.
+۳. ایموجی را زنده و به‌جا به‌کار ببر (تا ۴-۵ تا داخل متن اصلی، نه بیشتر و نه خشک). عنوان‌ها بدون ایموجی باشند (قالب خودکار اضافه می‌کند).
+۴. برای زنده کردن متن از قالب‌بندی سبک تلگرام داخل فیلدهای متنی (body/why/intro/final/hook/fun_fact) استفاده کن — همین‌جا در متن بنویس، خودِ ربات آن را به فرمت واقعی تلگرام تبدیل می‌کند:
+   - **کلمه یا عبارت** → پررنگ (برای تاکید روی نکته کلیدی)
+   - __کلمه__ → زیرخط‌دار (برای یک اصطلاح مهم)
+   - ~~ادعای غلط~~ → خط‌خورده (وقتی می‌خوای یک باور غلط رایج را رد کنی و بعدش واقعیت را بگی)
+   - `کد یا دستور کوتاه` → نمایش کد درون‌خطی (برای اسم فایل، دستور، متغیر)
+   - ||یک جمله غافلگیرکننده|| → اسپویلر (چیزی که با لمس‌کردن باز می‌شود؛ برای ساختن کنجکاوی از آن به‌ندرت و هوشمندانه استفاده کن)
+   حداقل از ۲ تا از این‌ها در هر پست استفاده کن؛ اما در «تیتر» هرگز از آن‌ها استفاده نکن.
+۵. هرگز از عبارات کلیشه‌ای تبلیغاتی یا شعاری استفاده نکن. مثل یک ادمین باتجربه که واقعاً موضوع را دوست دارد بنویس.
+۶. پاسخ را فقط و فقط به شکل JSON معتبر بده؛ هیچ متن اضافی خارج از JSON ننویس."""
 
 
 def sanitize_tags(tags: list[str]) -> str:
@@ -647,6 +718,9 @@ def esc(text: str) -> str:
     return html.escape(str(text or ""), quote=False)
 
 
+# نحو سبک شبه‌مارک‌داون که مدل داخل متن می‌نویسد و اینجا به تگ‌های واقعی
+# HTML تلگرام تبدیل می‌شود (بعد از escape شدن، پس امن است):
+#   **پررنگ**   __زیرخط__   ~~خط‌خورده~~   `کد`   ||اسپویلر||
 def format_inline(text: str) -> str:
     t = esc(text)
     t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
@@ -658,6 +732,7 @@ def format_inline(text: str) -> str:
 
 
 def render_code(code: dict | None) -> str:
+    """رندر یک تکه کد در حالت نمایش کد تلگرام (<pre><code>) با syntax highlight زبان."""
     if not isinstance(code, dict):
         return ""
     snippet = str(code.get("snippet") or "").strip()
@@ -670,17 +745,15 @@ def render_code(code: dict | None) -> str:
 
 def esc_url(url: str) -> str:
     url = (url or "").strip()
-    if not url.startswith("http"):
-        url = "https://example.com"
-    return html.escape(url, quote=True)
+    return html.escape(url if url.startswith("http") else "https://example.com", quote=True)
 
 
 def channel_link() -> str:
-    if CHANNEL_LINK_ENV:
+    if CHANNEL_LINK_ENV:                   # لینک دعوت کانال خصوصی (در env)
         return CHANNEL_LINK_ENV
     if CHANNEL_ID.startswith("@"):
         return f'https://t.me/{CHANNEL_ID[1:]}'
-    return ""
+    return ""                              # کانال خصوصی بدون لینک عمومی
 
 
 def footer(source_url: str, source_name: str) -> str:
@@ -757,99 +830,114 @@ def build_caption(d: dict, source_url: str, source_name: str, emoji: str) -> str
 
 
 COMMON_JSON_FIELDS = """,
-  "hook": "یک جمله کوتاه و قلاب‌مانند برای ابتدای پست — حداکثر ۱۲ کلمه",
-  "fun_fact": "یک نکته جالب واقعی؛ اگر نیست رشته خالی",
-  "caption": "خلاصه ۳-۴ خطی برای زیرنویس تصویر",
-  "image_prompt_en": "توضیح انگلیسی یک جمله‌ای برای ساخت تصویر علمی",
-  "tags": ["سه یا چهار هشتگ فارسی"],
-  "poll_question": "سوال نظرسنجی؛ اگر مناسب نیست رشته خالی",
-  "poll_options": ["گزینه‌های نظرسنجی؛ اگر poll_question خالی است آرایه خالی"]"""
+  "hook": "یک جمله کوتاه و قلاب‌مانند برای همان ابتدای پست (سوال، ادعای عجیب یا تضاد ذهنی) — حداکثر ۱۲ کلمه، بدون قالب‌بندی خاص",
+  "fun_fact": "یک نکته یا آمار غافلگیرکننده و واقعی مرتبط با موضوع که به‌صورت اسپویلر نمایش داده می‌شود؛ اگر واقعاً نکته جالبی نیست رشته خالی بگذار",
+  "caption": "خلاصه ۳ تا ۴ خطی همین مطلب برای زیرنویس تصویر؛ حداکثر ۷۰۰ کاراکتر",
+  "image_prompt_en": "توضیح انگلیسی یک جمله‌ای برای ساخت تصویر علمی مرتبط با همین مطلب؛ سبک اینفوگرافیک تمیز و مدرن، بدون متن داخل تصویر",
+  "tags": ["سه یا چهار هشتگ فارسی مرتبط، بدون علامت #"],
+  "poll_question": "اگر موضوع برای یک نظرسنجی کوتاه مناسب است، یک سوال یک‌خطی بنویس؛ در غیر این صورت رشته خالی",
+  "poll_options": ["۲ تا ۴ گزینه خیلی کوتاه برای نظرسنجی بالا؛ اگر poll_question خالی است این آرایه را هم خالی بگذار"]"""
 
 
 def build_news(state: dict, item: dict) -> tuple[dict, str, str, str]:
-    prompt = f"""خبر علمی زیر را به پست تلگرامی فارسی تبدیل کن.
+    prompt = f"""خبر علمی زیر را به یک پست تلگرامی فارسی تبدیل کن.
 
 عنوان: {item['title']}
 منبع: {item['source']}
 لینک: {item['link']}
-خلاصه: {item['summary']}
+خلاصه انگلیسی: {item['summary']}
 
 JSON با این ساختار:
 {{
-  "title": "عنوان فارسی (حداکثر ۱۰ کلمه)",
-  "body": "متن ۴-۷ خطی"{COMMON_JSON_FIELDS}
+  "title": "عنوان فارسی جذاب و دقیق (حداکثر ۱۰ کلمه)",
+  "body": "متن ۴ تا ۷ خطی: چه اتفاقی افتاده، چگونه، و چه اهمیتی دارد. اگر به هوش مصنوعی، محاسبات یا بیوانفورماتیک مربوط است حتماً روشن بگو.",
+  "why": "یک تا دو جمله درباره اهمیت برای زیست‌شناسان و بیوانفورماتیک‌دان‌ها"{COMMON_JSON_FIELDS}
 }}"""
     d = call_llm(state, SYSTEM_PROMPT, prompt)
     return d, item["link"], item["source"], "🧬"
 
 
 def build_tip(state: dict, tool: dict, angle: str) -> tuple[dict, str, str, str]:
-    prompt = f"""پست «ترفند بیوانفورماتیک» بنویس.
+    prompt = f"""یک پست «ترفند بیوانفورماتیک» بنویس.
 
-ابزار: {tool['name']} ({tool['url']})
-موضوع: {tool['fa']}
-زاویه: {angle}
+ابزار: {tool['name']} (وب‌سایت رسمی: {tool['url']})
+موضوع ابزار: {tool['fa']}
+زاویه موردنظر: {angle}
 
-JSON:
+قواعد: ترفند باید واقعاً در همین ابزار وجود داشته باشد و قابل انجام باشد؛ چیزی از خودت نساز. اگر خط فرمان یا کد لازم است، دقیق و کوتاه بیاور.
+
+JSON با این ساختار:
 {{
-  "title": "عنوان ترفند",
-  "body": "متن ۴-۸ خطی",
-  "why": "اهمیت",
-  "code": {{"lang": "python/bash/r یا خالی", "snippet": "کد کوتاه یا خالی"}}{COMMON_JSON_FIELDS}
+  "title": "عنوان فارسی مثل: ترفند طلایی BLAST برای ... (حداکثر ۱۰ کلمه)",
+  "body": "متن ۴ تا ۸ خطی: مشکل یا نیاز، ترفند دقیق، و نحوه اجرا؛ مراحل را مرتب و خوانا بنویس",
+  "why": "یک تا دو جمله: با این ترفند چه زمانی یا منبعی صرفه‌جویی می‌شود",
+  "code": {{"lang": "اسم زبان یا ابزار خط‌فرمان (مثل python، bash، r)؛ اگر کد لازم نیست رشته خالی", "snippet": "کد یا دستور دقیق و کوتاه (حداکثر ۸ خط)؛ اگر لازم نیست رشته خالی"}}{COMMON_JSON_FIELDS}
 }}"""
     d = call_llm(state, SYSTEM_PROMPT, prompt)
-    return d, tool["url"], f"مستندات {tool['name']}", "💻"
+    return d, tool["url"], f"مستندات رسمی {tool['name']}", "💻"
 
 
 def build_roadmap(state: dict, paper: dict) -> tuple[dict, str, str, str]:
-    prompt = f"""رودمپ فارسی بر اساس مقاله زیر بنویس.
+    prompt = f"""بر اساس مقاله علمی تازه زیر، یک «رودمپ کامل» فارسی بنویس: اگر کسی بخواهد وارد حوزه این مقاله شود یا آن را بازتولید کند، باید چه مسیری را طی کند.
 
-عنوان: {paper['title']}
+عنوان مقاله: {paper['title']}
 منبع: {paper['source']}
 لینک: {paper['link']}
-خلاصه: {paper['summary']}
+چکیده/خلاصه: {paper['summary']}
 
-JSON:
+قواعد: هر مهارت و ابزاری که نام می‌بری باید واقعی و شناخته‌شده باشد؛ لینک نساز (فقط نام ببر). گام‌ها باید مشخص، عملی و به‌ترتیب باشند.
+
+JSON با این ساختار:
 {{
-  "title": "عنوان رودمپ",
-  "intro": "دو خط مقدمه",
-  "steps": [{{"title": "گام", "detail": "توضیح"}}, ... ۵-۷ گام],
-  "final": "جمع‌بندی"{COMMON_JSON_FIELDS}
+  "title": "عنوان فارسی رودمپ (مثلاً: رودمپ ورود به ... بر پایه مقاله جدید Nature)",
+  "intro": "دو خط: این مقاله چه کرده و این رودمپ برای کیست",
+  "steps": [
+    {{"title": "عنوان کوتاه گام ۱", "detail": "توضیح ۱-۲ خطی دقیق این گام"}},
+    ... بین ۵ تا ۷ گام ...
+  ],
+  "final": "یک تا دو جمله جمع‌بندی انگیزشی اما علمی و واقع‌بینانه"{COMMON_JSON_FIELDS}
 }}"""
     d = call_llm(state, SYSTEM_PROMPT, prompt)
     return d, paper["link"], paper["source"], "🗺"
 
 
 def build_tool(state: dict, tool: dict) -> tuple[dict, str, str, str]:
-    prompt = f"""معرفی ابزار بیوانفورماتیک بنویس.
+    prompt = f"""یک پست معرفی علمی-آموزشی بنویس درباره این ابزار بیوانفورماتیک.
 
-ابزار: {tool['name']} ({tool['url']})
+ابزار: {tool['name']} (لینک رسمی: {tool['url']})
 موضوع: {tool['fa']}
 
-JSON:
+قواعد: فقط قابلیت‌های واقعی و مستند این ابزار را بنویس؛ رایگان/متن‌باز/آنلاین بودن را اگر می‌دانی ذکر کن.
+
+JSON با این ساختار:
 {{
-  "title": "عنوان",
-  "body": "معرفی ۵-۸ خطی",
-  "why": "اهمیت",
-  "code": {{"lang": "زبان", "snippet": "کد نصب یا شروع"}}{COMMON_JSON_FIELDS}
+  "title": "عنوان فارسی (مثل: ابزار هفته: Galaxy؛ آزمایشگاه بیوانفورماتیک در مرورگر)",
+  "body": "معرفی ۵ تا ۸ خطی: چیست، چه مشکلی حل می‌کند، برای چه کسانی، یک نکته کاربردی شروع",
+  "why": "یک تا دو جمله درباره جایگاه ابزار در پژوهش",
+  "code": {{"lang": "اگر یک دستور نصب یا نمونه کد کوتاه برای شروع کار با ابزار وجود دارد نام زبان/ابزار را بنویس، وگرنه رشته خالی", "snippet": "دستور یا کد کوتاه؛ اگر لازم نیست رشته خالی"}}{COMMON_JSON_FIELDS}
 }}"""
     d = call_llm(state, SYSTEM_PROMPT, prompt)
-    return d, tool["url"], f"وب‌سایت {tool['name']}", "🛠"
+    return d, tool["url"], f"وب‌سایت رسمی {tool['name']}", "🛠"
 
 
 def build_trend(state: dict, item: dict) -> tuple[dict, str, str, str]:
-    prompt = f"""ترند داغ امروز را به پست تبدیل کن.
+    prompt = f"""موضوع زیر همین الان یکی از ترندهای داغ دنیاست (پرجست‌وجوترین/پربحث‌ترین سوژه امروز).
 
 عنوان: {item['title']}
 منبع: {item['source']}
 لینک: {item['link']}
-خلاصه: {item['summary']}
+زمینه/خلاصه: {item['summary']}
 
-JSON:
+قواعد:
+- اگر این ترند مستقیم یا غیرمستقیم به زیست‌شناسی، هوش مصنوعی، پزشکی، بیوانفورماتیک یا علم مرتبط است، همان ارتباط را برجسته و جذاب توضیح بده.
+- اگر ارتباط مستقیمی ندارد، با یک زاویه هوشمندانه و صادقانه (تشبیه، مقایسه، یا درسی علمی) آن را به دنیای زیست/هوش مصنوعی وصل کن؛ هرگز ادعای غلط یا ساختگی نساز — اگر واقعاً ارتباطی وجود ندارد، صادقانه بگو این خبر داغ امروز دنیای تکنولوژی/علم است و چرا برای یک ذهن کنجکاو جالب است.
+- لحن باید فوق‌العاده امروزی، پرانرژی و مکالمه‌ای باشد؛ انگار داری تازه‌ترین خبر داغ را برای یک دوست باهوش تعریف می‌کنی.
+
+JSON با این ساختار:
 {{
-  "title": "عنوان ترند",
-  "body": "۴-۷ خط",
-  "why": "اهمیت"{COMMON_JSON_FIELDS}
+  "title": "عنوان فارسی جذاب و ترند-محور (حداکثر ۱۰ کلمه)",
+  "body": "۴ تا ۷ خط: این ترند چیست، چرا الان همه دارن درباره‌اش حرف می‌زنن، و ارتباطش با دنیای زیست/هوش مصنوعی چیست",
+  "why": "یک تا دو جمله: این موضوع چرا برای مخاطب این کانال مهم یا جالب است"{COMMON_JSON_FIELDS}
 }}"""
     d = call_llm(state, SYSTEM_PROMPT, prompt)
     return d, item["link"], item["source"], "🔥"
@@ -891,7 +979,7 @@ def tg_post(method: str, data: dict, files: dict | None = None) -> dict:
             if body.get("ok"):
                 return body
             description = body.get("description", "")
-            if "parse" in description.lower():
+            if "parse" in description.lower():      # خطای HTML → ارسال بدون قالب‌بندی
                 plain = re.sub(r"<[^>]+>", "", data.get("text") or data.get("caption") or "")
                 data = {k: v for k, v in data.items() if k not in ("parse_mode", "link_preview_options")}
                 for key in ("text", "caption"):
@@ -906,12 +994,13 @@ def tg_post(method: str, data: dict, files: dict | None = None) -> dict:
             raise RuntimeError(f"تلگرام: {last}")
         except requests.RequestException as exc:
             last = str(exc)
-            log(f"⚠ خطای شبکه (تلاش {attempt + 1}/۳): {exc}")
+            log(f"⚠ خطای شبکه تلگرام (تلاش {attempt + 1}/۳): {exc}")
             time.sleep(5 * (attempt + 1))
-    raise RuntimeError(f"ارسال ناموفق: {last}")
+    raise RuntimeError(f"ارسال به تلگرام پس از تلاش‌های مکرر ناموفق بود: {last}")
 
 
 def build_reply_markup(source_url: str = "") -> str | None:
+    """دکمه‌های شیشه‌ای زیر پست: لینک منبع + عضویت در کانال (فیچر تلگرام)."""
     buttons = []
     if source_url and source_url.startswith("http"):
         buttons.append({"text": "🔗 منبع کامل", "url": source_url})
@@ -931,6 +1020,7 @@ def send_chat_action(action: str) -> None:
 
 
 def send_poll(question: str, options: list[str]) -> None:
+    """نظرسنجی بومی تلگرام برای افزایش تعامل مخاطب با موضوع پست."""
     try:
         tg_post("sendPoll", {
             "chat_id": CHANNEL_ID,
@@ -941,7 +1031,7 @@ def send_poll(question: str, options: list[str]) -> None:
         })
         log("📊 نظرسنجی ارسال شد")
     except Exception as exc:
-        log(f"⚠ نظرسنجی ناموفق: {exc}")
+        log(f"⚠ ارسال نظرسنجی ناموفق: {exc}")
 
 
 def send_text(text: str, source_url: str = "") -> None:
@@ -954,10 +1044,10 @@ def send_text(text: str, source_url: str = "") -> None:
             "parse_mode": "HTML",
             "disable_web_page_preview": "true" if i > 0 else "false",
         }
-        if markup and i == len(chunks) - 1:
+        if markup and i == len(chunks) - 1:      # دکمه‌ها فقط زیر آخرین بخش پیام
             data["reply_markup"] = markup
         tg_post("sendMessage", data)
-        log(f"📤 پیام متنی ({i + 1}/{len(chunks)})")
+        log(f"📤 پیام متنی ارسال شد ({i + 1}/{len(chunks)})")
 
 
 def send_photo(image: bytes, caption: str, full_text: str, source_url: str = "") -> None:
@@ -969,15 +1059,15 @@ def send_photo(image: bytes, caption: str, full_text: str, source_url: str = "")
             data["reply_markup"] = markup
         tg_post("sendPhoto", data, files={"photo": ("image.png", image, "image/png")})
         sent = True
-        log("🖼 تصویر ارسال شد")
+        log("🖼 تصویر با موفقیت ارسال شد")
     except Exception as exc:
-        log(f"⚠ ارسال تصویر ناموفق ({exc})")
+        log(f"⚠ ارسال تصویر ناموفق ({exc})؛ ارسال متنی…")
     if not sent or FULL_TEXT_AFTER_IMAGE:
         send_text(full_text, source_url if not sent else "")
 
 
 # ======================================================================
-#  انتخاب نوع محتوا
+#  انتخاب نوع محتوا + سقف پست روزانه
 # ======================================================================
 CONTENT_TYPES = ("news", "trend", "tip", "roadmap", "tool")
 
@@ -993,10 +1083,16 @@ def pick_type() -> str:
             weights.append((name, int(w.strip())))
     if not weights:
         return "news"
-    return random.choices([n for n, _ in weights], weights=[w for _, w in weights], k=1)[0]
+    names = [n for n, _ in weights]
+    vals = [w for _, w in weights]
+    return random.choices(names, weights=vals, k=1)[0]
 
 
 def today_gate(state: dict) -> bool:
+    """آیا اجازه داریم الان پست بگذاریم؟
+    به‌طور پیش‌فرض بدون هیچ محدودیت زمانی یا سقفی همیشه True است — طبق خواسته،
+    ربات هر بار که Actions اجرایش می‌کند (هر ۳۰ دقیقه) پست می‌گذارد.
+    اگر خواستی سقف روزانه قدیمی را برگردانی، ENABLE_DAILY_CAP=1 را ست کن."""
     if os.environ.get("ENABLE_DAILY_CAP", "0") != "1":
         return True
     td = state.setdefault("today", {})
@@ -1008,7 +1104,7 @@ def today_gate(state: dict) -> bool:
     if os.environ.get("FORCE_POST", "") == "1":
         return True
     if td["count"] >= td["target"]:
-        log(f"📅 سقف امروز پر شده")
+        log(f"📅 سقف امروز ({td['target']}) پر شده — این اجرا پستی نمی‌گذارد")
         return False
     return True
 
@@ -1023,42 +1119,62 @@ def today_increment(state: dict) -> None:
 def main() -> int:
     global ENGINES
     ENGINES = load_engines()
-    log(f"🚀 شروع — کانال: {CHANNEL_ID} | کلیدها: {len(ENGINES)}")
+    n_gem = sum(1 for e in ENGINES if e.kind == "gemini")
+    n_oa = len(ENGINES) - n_gem
+    log(f"🚀 شروع — کانال: {CHANNEL_ID} | کلیدها: {len(ENGINES)} "
+        f"(جمینای×{n_gem} + OpenAI-سازگار×{n_oa}) | نوع: "
+        + (FORCE_TYPE or "خودکار (وزنی)"))
 
     if not ENGINES:
-        log("❌ هیچ کلیدی تنظیم نشده")
+        log("❌ هیچ کلید هوش مصنوعی تنظیم نشده (AI_CONFIG یا GEMINI_API_KEY)")
         return 1
 
     state = load_state()
-    refresh_gemini_models(state)
+
+    refresh_gemini_models(state)   # کشف خودکار مدل‌های جمینایِ در دسترس (کش روزانه)
 
     if not today_gate(state):
         return 0
 
     ctype = pick_type()
-    log(f"📂 نوع محتوا: {ctype}")
+    log(f"📂 نوع محتوا: {ctype} (امروز {state.get('today', {}).get('count', 0)}/"
+        f"{state.get('today', {}).get('target', '?')})")
 
+    # ---------- انتخاب ماده خام ----------
     d = source_url = source_name = emoji = None
 
     if ctype == "trend":
         pool = fetch_trend_items()
         fresh = [i for i in pool if i["link"] not in state.get("links", [])]
+        log(f"🔥 {len(pool)} ترند پیدا شد، {len(fresh)} مورد پست‌نشده")
         if not fresh:
             ctype = "news"
+            log("ترند تازه‌ای نمانده بود → رفتن سراغ اخبار علمی")
         else:
             item = random.choice(fresh)
+            if DRY_RUN:
+                log(f"— حالت آزمایشی (trend)؛ مورد انتخاب‌شده:")
+                print(json.dumps(item, ensure_ascii=False, indent=2))
+                return 0
             d, source_url, source_name, emoji = build_trend(state, item)
             state.setdefault("links", []).append(item["link"])
 
     if ctype in ("news", "roadmap"):
         pool = fetch_feed_items(only_roadmap_pool=(ctype == "roadmap"))
         if ctype == "roadmap" and not pool:
+            log("استخر رودمپ خالی بود؛ از کل استخر استفاده می‌شود")
             pool = fetch_feed_items()
         fresh = [i for i in pool if i["link"] not in state.get("links", [])]
+        log(f"📰 {len(pool)} مورد پیدا شد، {len(fresh)} مورد پست‌نشده")
         if not fresh:
             ctype = "tool"
+            log("ماده تازه‌ای نمانده بود → معرفی ابزار")
         else:
             item = random.choice(fresh)
+            if DRY_RUN:
+                log(f"— حالت آزمایشی ({ctype})؛ مورد انتخاب‌شده:")
+                print(json.dumps(item, ensure_ascii=False, indent=2))
+                return 0
             if ctype == "news":
                 d, source_url, source_name, emoji = build_news(state, item)
             else:
@@ -1071,6 +1187,9 @@ def main() -> int:
             state["topics"] = []
             unused = TOPIC_BANK
         tool = random.choice(unused)
+        if DRY_RUN:
+            log(f"— حالت آزمایشی (tip)؛ ابزار: {tool['name']} | زاویه: {random.choice(TIP_ANGLES)}")
+            return 0
         d, source_url, source_name, emoji = build_tip(state, tool, random.choice(TIP_ANGLES))
         state.setdefault("topics", []).append(tool["name"])
 
@@ -1080,12 +1199,16 @@ def main() -> int:
             state["topics"] = []
             unused = TOPIC_BANK
         tool = random.choice(unused)
+        if DRY_RUN:
+            log(f"— حالت آزمایشی (tool)؛ ابزار: {tool['name']}")
+            return 0
         d, source_url, source_name, emoji = build_tool(state, tool)
         state.setdefault("topics", []).append(tool["name"])
 
     if d is None:
-        raise RuntimeError("نوع محتوا ناشناخته")
+        raise RuntimeError("نوع محتوا ناشناخته است")
 
+    # ---------- ساخت پست نهایی ----------
     if ctype == "roadmap":
         full_text = render_roadmap(d, source_url, source_name)
     else:
@@ -1097,27 +1220,30 @@ def main() -> int:
     print(full_text)
     log("=" * 60)
 
-    # تولید تصویر با Nano Banana
+    # ---------- تصویر ----------
     image = None
     if WITH_IMAGE:
         if not TELEGRAM_DRY:
             send_chat_action("upload_photo")
-        image = generate_image(state, d.get("image_prompt_en") or d.get("title", ""))
+        img_prompt = build_image_prompt(
+            state, full_text, fallback=d.get("image_prompt_en") or d.get("title", "")
+        )
+        image = generate_image(state, img_prompt)
         if image and not TELEGRAM_DRY:
             os.makedirs(os.path.join(ROOT, "state"), exist_ok=True)
             with open(os.path.join(ROOT, "state", "last_image.png"), "wb") as f:
                 f.write(image)
 
-    # ارسال
+    # ---------- ارسال ----------
     if TELEGRAM_DRY:
-        log("🔧 حالت TELEGRAM_DRY")
+        log("🔧 حالت TELEGRAM_DRY — ارسال واقعی انجام نشد")
     elif image:
         send_photo(image, caption, full_text, source_url)
     else:
-        log("📷 بدون تصویر؛ ارسال متنی")
+        log("📷 بدون تصویر (ناموفق یا غیرفعال)؛ ارسال متنی")
         send_text(full_text, source_url)
 
-    # نظرسنجی
+    # ---------- نظرسنجی (فیچر بومی تلگرام برای تعامل بیشتر) ----------
     poll_q = str(d.get("poll_question") or "").strip()
     poll_opts = [str(o).strip() for o in (d.get("poll_options") or []) if str(o).strip()]
     if not TELEGRAM_DRY and poll_q and len(poll_opts) >= 2:
@@ -1126,13 +1252,129 @@ def main() -> int:
     if not TELEGRAM_DRY:
         today_increment(state)
         save_state(state)
-    log("🏁 پایان موفق")
+    log("🏁 پایان — همه‌چیز موفق")
+    return 0
+
+
+# ======================================================================
+#  تست داخلی:  python3 bot.py --selftest
+# ======================================================================
+def selftest() -> int:
+    log("🧪 selftest شروع شد")
+    # ۱) پارس AI_CONFIG با هر دو شکل کلید جمینای (رشته و شیء با models)
+    sample_cfg = json.dumps({
+        "gemini_models": ["gemini-2.5-pro", "gemini-2.5-flash"],
+        "gemini": [
+            {"api_key": "AIza-key-111111"},
+            {"api_key": "AIza-key-222222", "models": ["gemini-2.5-flash"]},
+            "AIza-key-333333",
+        ],
+        "openai_compatible": [
+            {"base_url": "https://api.x.ai/v1", "api_key": "xai-aaa123", "model": "grok-4.1-fast"},
+            {"base_url": "https://opencode.ai/zen/v1", "api_key": "sk-zzz999", "model": "grok-code-fast-1"},
+        ],
+    })
+    os.environ["AI_CONFIG"] = sample_cfg
+    global ENGINES
+    ENGINES = load_engines()
+    assert len(ENGINES) == 5, f"موتورها: {len(ENGINES)}"
+    log(f"✔ پارس AI_CONFIG: {len(ENGINES)} کلید → {[e.id for e in ENGINES]}")
+
+    # ۲) ترتیب اولویت: کلید اول باید pro را قبل از flash امتحان کند
+    cands = ordered_candidates(load_state())
+    first_key_models = [m for e, m in cands if e.api_key.endswith("111111")]
+    assert first_key_models == ["gemini-2.5-pro", "gemini-2.5-flash"], first_key_models
+    assert len(cands) == 7, len(cands)   # 2+1+2 جمینای + 2 اوپن‌ای‌آی
+    log(f"✔ ترتیب اولویت (کلید اول: {first_key_models}) و مجموع {len(cands)} گزینه — درست")
+
+    # ۳) خنک‌سازی فقط همان (کلید، مدل) را کنار می‌گذارد؛ مدل بعدی می‌آید
+    state = load_state()
+    set_cooldown(state, candidate_id(ENGINES[0], "gemini-2.5-pro"))
+    cands2 = ordered_candidates(state)
+    assert cands2[0] == (ENGINES[0], "gemini-2.5-flash")
+    log("✔ خنک‌سازی Pro → خودکار رفتن سراغ Flash")
+    state["cooldowns"] = {}
+
+    # ۴) کلید مرده حذف می‌شود
+    mark_dead(state, ENGINES[1])
+    cands3 = ordered_candidates(state)
+    assert all(e is not ENGINES[1] for e, _ in cands3)
+    state["dead_engines"] = []
+    log("✔ کلید نامعتبر از چرخه خارج می‌شود")
+
+    # ۵) پارس JSON حتی داخل fence
+    assert extract_json('```json\n{"a": 1}\n```') == {"a": 1}
+    assert extract_json('متن {"a": {"b": 2}} ادامه') == {"a": {"b": 2}}
+    log("✔ استخراج JSON از پاسخ‌های آلوده درست است")
+
+    # ۶) رندر و قالب پست
+    d = extract_json(MOCK_RESPONSE)
+    p1 = render_post(d, "https://example.com/p", "Nature Methods", "🧬")
+    p2 = render_roadmap(
+        {**d, "intro": "مقدمه تست", "steps": [
+            {"title": "یادگیری پایتون", "detail": "شروع با Biopython"},
+            {"title": "آموزش آمار", "detail": "مبانی آمار زیستی"},
+        ], "final": "جمع‌بندی"},
+        "https://example.com/r", "bioRxiv")
+    cap = build_caption(d, "https://example.com/p", "Nature Methods", "🧬")
+    assert all("t.me/Bio_with_AI" in x for x in (p1, p2, cap))
+    assert len(cap) <= 1024
+    assert all(len(c) <= 4000 for c in split_message(p1 * 3))
+    log(f"✔ رندر پست‌ها (متن: {len(p1)}، رودمپ: {len(p2)}، کپشن: {len(cap)} کاراکتر)")
+
+    # ۷) سقف روزانه (به‌طور پیش‌فرض غیرفعال — طبق خواسته، همیشه پست می‌گذاریم)
+    state2 = load_state()
+    assert today_gate(state2) is True                     # پیش‌فرض: بدون سقف، همیشه مجاز
+    os.environ["ENABLE_DAILY_CAP"] = "1"                   # فعال‌سازی دستی برای تست منطق قدیمی
+    os.environ["DAILY_MIN"] = os.environ.get("DAILY_MIN", "20")
+    assert today_gate(state2) is True                      # روز تازه → شروع شمارش
+    state2["today"]["count"] = state2["today"]["target"]   # پر کردن سقف
+    assert today_gate(state2) is False
+    os.environ["FORCE_POST"] = "1"
+    assert today_gate(state2) is True                      # اجرای دستی همیشه مجاز
+    os.environ["FORCE_POST"] = ""
+    today_increment(state2)
+    assert state2["today"]["count"] == state2["today"]["target"] + 1
+    os.environ["ENABLE_DAILY_CAP"] = "0"
+    log("✔ سقف روزانه پیش‌فرض غیرفعال است؛ منطق قدیمی هم با ENABLE_DAILY_CAP=1 درست کار می‌کند")
+
+    # ۸) کشف و رتبه‌بندی مدل‌های جمینای (فقط رایگان‌ها؛ پرو حذف)
+    sample_ids = ["gemini-2.5-flash", "gemini-3-flash", "gemini-3-pro",
+                  "gemini-3-pro-image", "text-embedding-004",
+                  "gemini-2.0-flash-lite", "gemini-3.5-flash-lite"]
+    ranked = rank_gemini_models(sample_ids)
+    assert ranked[0] == "gemini-3.5-flash-lite", ranked
+    assert all("pro" not in r.lower() and "image" not in r and "embedding" not in r for r in ranked)
+    assert rank_gemini_models(sample_ids, pinned=["gemini-2.5-flash"])[0] == "gemini-2.5-flash"
+    log(f"✔ رتبه‌بندی مدل‌های جمینای: {ranked}")
+
+    # ۹) انتخاب مدل جایگزین برای سرویس‌های OpenAI-سازگار
+    best = pick_openai_model(["grok-4", "grok-4-fast", "llama-3.3-70b"], failed="grok-4.1-fast")
+    assert best == "grok-4-fast", best
+    log(f"✔ انتخاب مدل جایگزین خودکار: grok-4.1-fast → {best}")
+
+    # ۱۰) فوتر کانال خصوصی (CHANNEL_ID عددی، بدون لینک عمومی)
+    global CHANNEL_ID
+    old_ch = CHANNEL_ID
+    CHANNEL_ID = "-1001234567890"
+    priv = footer("https://example.com/x", "Test")
+    assert "https://t.me/" not in priv and "Bio with AI" in priv
+    CHANNEL_ID = old_ch
+    log("✔ کانال خصوصی: فوتر بدون لینک خراد ساخته می‌شود")
+
+    # ۱۱) توزیع وزنی
+    counts = {t: 0 for t in CONTENT_TYPES}
+    for _ in range(20000):
+        counts[pick_type()] += 1
+    log(f"✔ توزیع وزنی در ۲۰۰۰۰ انتخاب: {counts}")
+
+    log("🧪 selftest کامل شد — همه‌چیز سالم است ✔")
     return 0
 
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        sys.exit(selftest() if SELFTEST else main())
     except Exception as exc:
         log(f"❌ خطای مهلک: {exc}")
         sys.exit(1)

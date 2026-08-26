@@ -19,7 +19,8 @@
   "BWA",
   "NCBI",
   "GATK",
-  "AlphaFold DB"
+  "AlphaFold DB",
+  "GTEx"
  ],
  "model_cache": {
   "gemini_date": "2026-08-26",
@@ -37,7 +38,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 18,
+  "count": 19,
   "target": 22
  }
 }

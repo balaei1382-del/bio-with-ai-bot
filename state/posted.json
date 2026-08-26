@@ -8,7 +8,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.07.743613v1?rss=1.full",
   "https://www.nature.com/articles/s41586-026-10892-y",
   "https://www.nature.com/articles/d41586-026-02537-x",
-  "https://www.nature.com/articles/s41587-026-03290-2"
+  "https://www.nature.com/articles/s41587-026-03290-2",
+  "https://trends.google.com/trending/rss?geo=GB"
  ],
  "topics": [
   "IQ-TREE",
@@ -38,7 +39,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 19,
+  "count": 20,
   "target": 22
  }
 }

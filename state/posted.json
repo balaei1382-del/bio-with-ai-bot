@@ -17,7 +17,8 @@
   "antiSMASH",
   "FastQC",
   "BWA",
-  "NCBI"
+  "NCBI",
+  "GATK"
  ],
  "model_cache": {
   "gemini_date": "2026-08-26",
@@ -35,7 +36,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 16,
+  "count": 17,
   "target": 22
  }
 }

@@ -10,7 +10,8 @@
   "https://www.nature.com/articles/d41586-026-02537-x",
   "https://www.nature.com/articles/s41587-026-03290-2",
   "https://trends.google.com/trending/rss?geo=GB",
-  "https://www.nature.com/articles/s41587-026-03300-3"
+  "https://www.nature.com/articles/s41587-026-03300-3",
+  "https://blog.cloudflare.com/dns-cache-memory-optimization-1111/"
  ],
  "topics": [
   "IQ-TREE",
@@ -25,7 +26,7 @@
   "GTEx"
  ],
  "model_cache": {
-  "gemini_date": "2026-08-26",
+  "gemini_date": "2026-08-28",
   "gemini_models": [
    "gemini-3.7-flash",
    "gemini-3.6-flash",
@@ -40,7 +41,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 21,
+  "count": 22,
   "target": 22
  }
 }

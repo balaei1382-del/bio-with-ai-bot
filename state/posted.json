@@ -14,7 +14,8 @@
   "https://blog.cloudflare.com/dns-cache-memory-optimization-1111/",
   "https://github.com/sseshachala/conductai",
   "https://www.s-config.com/stopping-a-smart-tv-from-being-used-against-you/",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014700"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014700",
+  "https://www.ycombinator.com/companies/attimet/jobs/6btZFDg-member-of-technical-staff-engineering"
  ],
  "topics": [
   "IQ-TREE",
@@ -46,7 +47,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 27,
+  "count": 28,
   "target": 22
  }
 }

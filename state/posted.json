@@ -17,7 +17,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014700",
   "https://www.ycombinator.com/companies/attimet/jobs/6btZFDg-member-of-technical-staff-engineering",
   "https://www.rascal.news/ppwr-lands-another-blow-to-an-already-precarious-tabletop-industry/",
-  "https://github.com/stemdeckapp/stemdeck"
+  "https://github.com/stemdeckapp/stemdeck",
+  "https://anil.recoil.org/notes/rumour-is-the-exploit"
  ],
  "topics": [
   "IQ-TREE",
@@ -49,7 +50,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 30,
+  "count": 31,
   "target": 22
  }
 }

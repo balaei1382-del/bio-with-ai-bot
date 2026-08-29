@@ -19,7 +19,8 @@
   "https://www.rascal.news/ppwr-lands-another-blow-to-an-already-precarious-tabletop-industry/",
   "https://github.com/stemdeckapp/stemdeck",
   "https://anil.recoil.org/notes/rumour-is-the-exploit",
-  "https://www.nature.com/articles/d41586-026-02664-5"
+  "https://www.nature.com/articles/d41586-026-02664-5",
+  "https://www.sciencedaily.com/releases/2026/08/260823014943.htm"
  ],
  "topics": [
   "IQ-TREE",
@@ -51,7 +52,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 32,
+  "count": 33,
   "target": 22
  }
 }

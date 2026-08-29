@@ -28,7 +28,8 @@
   "https://ckardaris.com/blog/2026/08/28/keyboard-driven-guis.html",
   "https://claude.com/blog/how-warp-builds-self-improving-agents-on-claude",
   "https://tucker.wales/writing/bias-towards-action/",
-  "https://www.sciencedaily.com/releases/2026/08/260820002413.htm"
+  "https://www.sciencedaily.com/releases/2026/08/260820002413.htm",
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014630"
  ],
  "topics": [
   "IQ-TREE",
@@ -67,7 +68,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 48,
+  "count": 49,
   "target": 22
  }
 }

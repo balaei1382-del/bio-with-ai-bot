@@ -34,7 +34,8 @@
   "AlphaFold DB",
   "GTEx",
   "PubMed",
-  "Bioconda"
+  "Bioconda",
+  "UniProt"
  ],
  "model_cache": {
   "gemini_date": "2026-08-29",
@@ -52,7 +53,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 33,
+  "count": 34,
   "target": 22
  }
 }

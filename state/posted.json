@@ -16,7 +16,8 @@
   "https://www.s-config.com/stopping-a-smart-tv-from-being-used-against-you/",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014700",
   "https://www.ycombinator.com/companies/attimet/jobs/6btZFDg-member-of-technical-staff-engineering",
-  "https://www.rascal.news/ppwr-lands-another-blow-to-an-already-precarious-tabletop-industry/"
+  "https://www.rascal.news/ppwr-lands-another-blow-to-an-already-precarious-tabletop-industry/",
+  "https://github.com/stemdeckapp/stemdeck"
  ],
  "topics": [
   "IQ-TREE",
@@ -48,7 +49,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 29,
+  "count": 30,
   "target": 22
  }
 }

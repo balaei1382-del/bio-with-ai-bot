@@ -18,7 +18,8 @@
   "https://www.ycombinator.com/companies/attimet/jobs/6btZFDg-member-of-technical-staff-engineering",
   "https://www.rascal.news/ppwr-lands-another-blow-to-an-already-precarious-tabletop-industry/",
   "https://github.com/stemdeckapp/stemdeck",
-  "https://anil.recoil.org/notes/rumour-is-the-exploit"
+  "https://anil.recoil.org/notes/rumour-is-the-exploit",
+  "https://www.nature.com/articles/d41586-026-02664-5"
  ],
  "topics": [
   "IQ-TREE",
@@ -50,7 +51,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 31,
+  "count": 32,
   "target": 22
  }
 }

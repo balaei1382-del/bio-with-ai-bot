@@ -20,7 +20,8 @@
   "https://github.com/stemdeckapp/stemdeck",
   "https://anil.recoil.org/notes/rumour-is-the-exploit",
   "https://www.nature.com/articles/d41586-026-02664-5",
-  "https://www.sciencedaily.com/releases/2026/08/260823014943.htm"
+  "https://www.sciencedaily.com/releases/2026/08/260823014943.htm",
+  "https://github.com/Lakr233/vphone-cli"
  ],
  "topics": [
   "IQ-TREE",
@@ -56,7 +57,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 37,
+  "count": 38,
   "target": 22
  }
 }

@@ -45,7 +45,8 @@
   "PyMOL",
   "Snakemake",
   "Reactome",
-  "BUSCO"
+  "BUSCO",
+  "QIIME 2"
  ],
  "model_cache": {
   "gemini_date": "2026-08-29",
@@ -63,7 +64,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 44,
+  "count": 45,
   "target": 22
  }
 }

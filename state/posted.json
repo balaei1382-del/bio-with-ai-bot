@@ -25,7 +25,8 @@
   "https://azmirror.com/2026/08/28/9th-circuit-sides-with-states-in-kalshi-gambling-fight-potentially-reviving-arizonas-prosecution/",
   "https://geekyschmidt.com/post/2026-08-25-verschlimmbesserung/",
   "https://github.com/kingroryg/turbokv",
-  "https://ckardaris.com/blog/2026/08/28/keyboard-driven-guis.html"
+  "https://ckardaris.com/blog/2026/08/28/keyboard-driven-guis.html",
+  "https://claude.com/blog/how-warp-builds-self-improving-agents-on-claude"
  ],
  "topics": [
   "IQ-TREE",
@@ -64,7 +65,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 45,
+  "count": 46,
   "target": 22
  }
 }

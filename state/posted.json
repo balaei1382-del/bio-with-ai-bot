@@ -37,7 +37,8 @@
   "Bioconda",
   "UniProt",
   "Samtools",
-  "PyMOL"
+  "PyMOL",
+  "Snakemake"
  ],
  "model_cache": {
   "gemini_date": "2026-08-29",
@@ -55,7 +56,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 36,
+  "count": 37,
   "target": 22
  }
 }

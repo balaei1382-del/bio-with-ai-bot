@@ -57,7 +57,8 @@
   "Gene Ontology",
   "STRING",
   "DAVID",
-  "Biopython"
+  "Biopython",
+  "Nextflow"
  ],
  "model_cache": {
   "gemini_date": "2026-08-30",
@@ -75,7 +76,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 56,
+  "count": 57,
   "target": 22
  },
  "cooldowns": {

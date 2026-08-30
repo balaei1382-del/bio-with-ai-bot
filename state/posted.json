@@ -56,7 +56,8 @@
   "QIIME 2",
   "Gene Ontology",
   "STRING",
-  "DAVID"
+  "DAVID",
+  "Biopython"
  ],
  "model_cache": {
   "gemini_date": "2026-08-30",
@@ -74,7 +75,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 55,
+  "count": 56,
   "target": 22
  },
  "cooldowns": {

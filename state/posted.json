@@ -32,7 +32,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014630",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747591v1?rss=1",
   "https://coldtake.dev/blog/domain-driven-agents",
-  "https://www.texastribune.org/2026/08/28/texas-flock-cameras-auto-insurance-fee-mvcpa-grants/"
+  "https://www.texastribune.org/2026/08/28/texas-flock-cameras-auto-insurance-fee-mvcpa-grants/",
+  "https://phys.org/news/2026-08-strategic-irrigation-stress-lucerne-seed.html"
  ],
  "topics": [
   "IQ-TREE",
@@ -76,7 +77,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 57,
+  "count": 58,
   "target": 22
  },
  "cooldowns": {

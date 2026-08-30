@@ -31,7 +31,8 @@
   "https://www.sciencedaily.com/releases/2026/08/260820002413.htm",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014630",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747591v1?rss=1",
-  "https://coldtake.dev/blog/domain-driven-agents"
+  "https://coldtake.dev/blog/domain-driven-agents",
+  "https://www.texastribune.org/2026/08/28/texas-flock-cameras-auto-insurance-fee-mvcpa-grants/"
  ],
  "topics": [
   "IQ-TREE",
@@ -72,7 +73,10 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 53,
+  "count": 54,
   "target": 22
+ },
+ "cooldowns": {
+  "gemini:mRx7Ow|gemini-3.7-flash": "2026-08-30T05:31:13.801152+00:00"
  }
 }

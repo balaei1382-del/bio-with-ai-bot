@@ -52,7 +52,8 @@
   "Snakemake",
   "Reactome",
   "BUSCO",
-  "QIIME 2"
+  "QIIME 2",
+  "Gene Ontology"
  ],
  "model_cache": {
   "gemini_date": "2026-08-30",
@@ -70,7 +71,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 51,
+  "count": 52,
   "target": 22
  }
 }

@@ -55,7 +55,8 @@
   "BUSCO",
   "QIIME 2",
   "Gene Ontology",
-  "STRING"
+  "STRING",
+  "DAVID"
  ],
  "model_cache": {
   "gemini_date": "2026-08-30",
@@ -73,7 +74,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 54,
+  "count": 55,
   "target": 22
  },
  "cooldowns": {

@@ -84,7 +84,8 @@
   "Scanpy",
   "DESeq2",
   "ChEMBL",
-  "Galaxy Training"
+  "Galaxy Training",
+  "InterPro"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -102,7 +103,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 83,
+  "count": 84,
   "target": 22
  },
  "cooldowns": {

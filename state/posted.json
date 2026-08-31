@@ -97,7 +97,8 @@
   "InterPro",
   "Galaxy Project",
   "Ensembl",
-  "GROMACS"
+  "GROMACS",
+  "RCSB PDB"
  ],
  "model_cache": {
   "gemini_date": "2026-09-01",
@@ -115,7 +116,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 96,
+  "count": 97,
   "target": 22
  },
  "cooldowns": {

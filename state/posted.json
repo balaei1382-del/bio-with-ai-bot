@@ -81,7 +81,8 @@
   "Cytoscape",
   "UCSC Genome Browser",
   "Scanpy",
-  "DESeq2"
+  "DESeq2",
+  "ChEMBL"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -99,7 +100,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 80,
+  "count": 81,
   "target": 22
  },
  "cooldowns": {

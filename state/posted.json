@@ -45,7 +45,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014686",
   "https://www.haiku-os.org/news/2026-08-26_haiku_r1_beta6",
   "https://komoroske.com/slime-mold/",
-  "https://www.biorxiv.org/content/10.64898/2026.08.23.746542v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.23.746542v1?rss=1",
+  "https://www.biorxiv.org/content/10.64898/2026.08.26.747352v1?rss=1"
  ],
  "topics": [
   "IQ-TREE",
@@ -92,7 +93,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 73,
+  "count": 74,
   "target": 22
  },
  "cooldowns": {

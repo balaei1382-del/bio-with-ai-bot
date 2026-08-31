@@ -94,7 +94,8 @@
   "Galaxy Training",
   "InterPro",
   "Galaxy Project",
-  "Ensembl"
+  "Ensembl",
+  "GROMACS"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -112,7 +113,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 93,
+  "count": 94,
   "target": 22
  },
  "cooldowns": {

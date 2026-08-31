@@ -52,7 +52,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747493v1?rss=1",
   "https://www.nature.com/articles/s41592-026-03238-z",
   "https://www.nature.com/articles/s41586-026-10980-z",
-  "https://ruurtjan.com/articles/p99-0ms-autocomplete-for-240-million-domain-names"
+  "https://ruurtjan.com/articles/p99-0ms-autocomplete-for-240-million-domain-names",
+  "https://www.nature.com/articles/s41592-026-03195-7"
  ],
  "topics": [
   "IQ-TREE",
@@ -104,7 +105,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 85,
+  "count": 86,
   "target": 22
  },
  "cooldowns": {

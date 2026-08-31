@@ -76,7 +76,8 @@
   "Seurat",
   "Cytoscape",
   "UCSC Genome Browser",
-  "Scanpy"
+  "Scanpy",
+  "DESeq2"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -94,7 +95,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 75,
+  "count": 76,
   "target": 22
  },
  "cooldowns": {

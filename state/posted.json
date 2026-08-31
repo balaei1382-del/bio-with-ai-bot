@@ -55,7 +55,8 @@
   "https://ruurtjan.com/articles/p99-0ms-autocomplete-for-240-million-domain-names",
   "https://www.nature.com/articles/s41592-026-03195-7",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014653",
-  "https://www.sciencedaily.com/releases/2026/08/260823094142.htm"
+  "https://www.sciencedaily.com/releases/2026/08/260823094142.htm",
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014646"
  ],
  "topics": [
   "IQ-TREE",
@@ -109,7 +110,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 90,
+  "count": 91,
   "target": 22
  },
  "cooldowns": {

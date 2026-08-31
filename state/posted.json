@@ -90,7 +90,8 @@
   "ChEMBL",
   "Galaxy Training",
   "InterPro",
-  "Galaxy Project"
+  "Galaxy Project",
+  "Ensembl"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -108,7 +109,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 89,
+  "count": 90,
   "target": 22
  },
  "cooldowns": {

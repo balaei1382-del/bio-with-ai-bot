@@ -75,7 +75,8 @@
   "Nextflow",
   "Seurat",
   "Cytoscape",
-  "UCSC Genome Browser"
+  "UCSC Genome Browser",
+  "Scanpy"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -93,7 +94,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 74,
+  "count": 75,
   "target": 22
  },
  "cooldowns": {

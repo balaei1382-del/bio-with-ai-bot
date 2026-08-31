@@ -48,7 +48,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.23.746542v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.26.747352v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747471v1?rss=1",
-  "https://www.nature.com/articles/d41586-026-02522-4"
+  "https://www.nature.com/articles/d41586-026-02522-4",
+  "https://www.biorxiv.org/content/10.64898/2026.08.27.747493v1?rss=1"
  ],
  "topics": [
   "IQ-TREE",
@@ -97,7 +98,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 78,
+  "count": 79,
   "target": 22
  },
  "cooldowns": {

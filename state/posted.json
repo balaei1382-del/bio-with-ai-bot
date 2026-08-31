@@ -57,7 +57,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014653",
   "https://www.sciencedaily.com/releases/2026/08/260823094142.htm",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014646",
-  "https://www.biorxiv.org/content/10.64898/2026.08.29.748026v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.29.748026v1?rss=1",
+  "https://www.nature.com/articles/d41586-026-02684-1"
  ],
  "topics": [
   "IQ-TREE",
@@ -111,7 +112,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 92,
+  "count": 93,
   "target": 22
  },
  "cooldowns": {

@@ -83,7 +83,8 @@
   "UCSC Genome Browser",
   "Scanpy",
   "DESeq2",
-  "ChEMBL"
+  "ChEMBL",
+  "Galaxy Training"
  ],
  "model_cache": {
   "gemini_date": "2026-08-31",
@@ -101,7 +102,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 82,
+  "count": 83,
   "target": 22
  },
  "cooldowns": {

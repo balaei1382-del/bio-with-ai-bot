@@ -68,7 +68,8 @@
   "https://phys.org/news/2026-08-tasmanian-tiger-outfoxed-prey.html",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014719",
   "https://phys.org/news/2026-08-smartphone-problem-built-season-meter.html",
-  "https://github.com/vermellcc/vermell"
+  "https://github.com/vermellcc/vermell",
+  "https://jasontucker.blog/how-i-turned-my-security-cameras-into-an-automatic-bird-identification-system-with-birdnet-go/"
  ],
  "topics": [
   "IQ-TREE",
@@ -126,7 +127,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 107,
+  "count": 108,
   "target": 22
  },
  "cooldowns": {

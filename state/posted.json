@@ -67,7 +67,8 @@
   "https://www.nature.com/articles/d41586-026-02733-9",
   "https://phys.org/news/2026-08-tasmanian-tiger-outfoxed-prey.html",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014719",
-  "https://phys.org/news/2026-08-smartphone-problem-built-season-meter.html"
+  "https://phys.org/news/2026-08-smartphone-problem-built-season-meter.html",
+  "https://github.com/vermellcc/vermell"
  ],
  "topics": [
   "IQ-TREE",
@@ -125,7 +126,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 106,
+  "count": 107,
   "target": 22
  },
  "cooldowns": {

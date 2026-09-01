@@ -65,7 +65,8 @@
   "https://phys.org/news/2026-08-farm-based-nanopore-sequencing-reliable.html",
   "https://phys.org/news/2026-08-rocky-mountain-reveals-funnel-web.html",
   "https://www.nature.com/articles/d41586-026-02733-9",
-  "https://phys.org/news/2026-08-tasmanian-tiger-outfoxed-prey.html"
+  "https://phys.org/news/2026-08-tasmanian-tiger-outfoxed-prey.html",
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014719"
  ],
  "topics": [
   "IQ-TREE",
@@ -122,7 +123,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 103,
+  "count": 104,
   "target": 22
  },
  "cooldowns": {

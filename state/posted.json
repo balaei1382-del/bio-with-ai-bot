@@ -69,7 +69,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014719",
   "https://phys.org/news/2026-08-smartphone-problem-built-season-meter.html",
   "https://github.com/vermellcc/vermell",
-  "https://jasontucker.blog/how-i-turned-my-security-cameras-into-an-automatic-bird-identification-system-with-birdnet-go/"
+  "https://jasontucker.blog/how-i-turned-my-security-cameras-into-an-automatic-bird-identification-system-with-birdnet-go/",
+  "https://www.sciencedaily.com/releases/2026/08/260828082347.htm"
  ],
  "topics": [
   "IQ-TREE",
@@ -127,7 +128,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 108,
+  "count": 109,
   "target": 22
  },
  "cooldowns": {

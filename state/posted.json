@@ -76,7 +76,8 @@
   "https://www.ycombinator.com/companies/collectwise/jobs/7U500pP-founding-customer-success-engineer",
   "https://aviationweek.com/defense/aircraft-propulsion/saab-enters-collaborative-combat-aircraft-race-high-end-concept",
   "https://blog.mozilla.org/en/firefox/ad-blocker-on-ios/",
-  "https://ambientcss.vercel.app/"
+  "https://ambientcss.vercel.app/",
+  "https://phys.org/news/2026-09-ecological-collapse-world-largest-mangrove.html"
  ],
  "topics": [
   "IQ-TREE",
@@ -135,7 +136,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 116,
+  "count": 117,
   "target": 22
  },
  "cooldowns": {

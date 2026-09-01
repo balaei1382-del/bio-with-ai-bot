@@ -79,7 +79,8 @@
   "https://ambientcss.vercel.app/",
   "https://phys.org/news/2026-09-ecological-collapse-world-largest-mangrove.html",
   "https://www.nature.com/articles/s41587-026-03217-x",
-  "https://www.norirobotics.com/"
+  "https://www.norirobotics.com/",
+  "https://ersc.io/blog/martin-joins-ersc"
  ],
  "topics": [
   "IQ-TREE",
@@ -138,7 +139,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 119,
+  "count": 120,
   "target": 22
  },
  "cooldowns": {

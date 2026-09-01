@@ -61,7 +61,8 @@
   "https://www.nature.com/articles/d41586-026-02684-1",
   "https://www.quantamagazine.org/stunning-percolation-proof-solves-decades-old-puzzle-about-phase-transitions-20260831/",
   "https://webiterate.dev/google-removed-extensions-ublock-origin-108/",
-  "https://www.biorxiv.org/content/10.64898/2026.08.26.747308v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.26.747308v1?rss=1",
+  "https://phys.org/news/2026-08-farm-based-nanopore-sequencing-reliable.html"
  ],
  "topics": [
   "IQ-TREE",
@@ -118,7 +119,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 99,
+  "count": 100,
   "target": 22
  },
  "cooldowns": {

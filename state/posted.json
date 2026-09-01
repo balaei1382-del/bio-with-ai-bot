@@ -77,7 +77,8 @@
   "https://aviationweek.com/defense/aircraft-propulsion/saab-enters-collaborative-combat-aircraft-race-high-end-concept",
   "https://blog.mozilla.org/en/firefox/ad-blocker-on-ios/",
   "https://ambientcss.vercel.app/",
-  "https://phys.org/news/2026-09-ecological-collapse-world-largest-mangrove.html"
+  "https://phys.org/news/2026-09-ecological-collapse-world-largest-mangrove.html",
+  "https://www.nature.com/articles/s41587-026-03217-x"
  ],
  "topics": [
   "IQ-TREE",
@@ -136,7 +137,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 117,
+  "count": 118,
   "target": 22
  },
  "cooldowns": {

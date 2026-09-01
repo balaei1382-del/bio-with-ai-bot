@@ -105,7 +105,8 @@
   "Ensembl",
   "GROMACS",
   "RCSB PDB",
-  "EMBL-EBI Services"
+  "EMBL-EBI Services",
+  "KEGG"
  ],
  "model_cache": {
   "gemini_date": "2026-09-01",
@@ -123,7 +124,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 104,
+  "count": 105,
   "target": 22
  },
  "cooldowns": {

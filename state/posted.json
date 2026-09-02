@@ -98,7 +98,8 @@
  ],
  "topics": [
   "EMBL-EBI Services",
-  "Galaxy Training"
+  "Galaxy Training",
+  "Bioconda"
  ],
  "model_cache": {
   "gemini_date": "2026-09-02",
@@ -116,7 +117,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 137,
+  "count": 138,
   "target": 22
  },
  "cooldowns": {

@@ -122,7 +122,8 @@
   "RCSB PDB",
   "EMBL-EBI Services",
   "KEGG",
-  "MG-RAST"
+  "MG-RAST",
+  "ColabFold"
  ],
  "model_cache": {
   "gemini_date": "2026-09-02",
@@ -140,7 +141,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 121,
+  "count": 122,
   "target": 22
  },
  "cooldowns": {

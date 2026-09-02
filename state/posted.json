@@ -88,7 +88,8 @@
   "https://www.nature.com/articles/s41587-026-03302-1",
   "https://www.sciencedaily.com/releases/2026/08/260822015208.htm",
   "https://www.sciencedaily.com/releases/2026/08/260828082341.htm",
-  "https://hnmatchmaker.com/"
+  "https://hnmatchmaker.com/",
+  "https://www.biorxiv.org/content/10.64898/2026.08.28.747833v1?rss=1"
  ],
  "topics": [
   "EMBL-EBI Services"
@@ -109,7 +110,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 130,
+  "count": 131,
   "target": 22
  },
  "cooldowns": {

@@ -91,7 +91,8 @@
   "https://hnmatchmaker.com/",
   "https://www.biorxiv.org/content/10.64898/2026.08.28.747833v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747487v1?rss=1",
-  "https://careers.telli.com/"
+  "https://careers.telli.com/",
+  "https://krebsonsecurity.com/2026/09/fbi-probes-service-selling-153m-drivers-licenses/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -113,7 +114,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 134,
+  "count": 135,
   "target": 22
  },
  "cooldowns": {

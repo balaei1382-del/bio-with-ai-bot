@@ -96,7 +96,8 @@
   "https://claude.com/check-content",
   "https://www.biorxiv.org/content/10.64898/2026.08.31.747783v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.09.01.748468v1?rss=1",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014718"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014718",
+  "https://www.biorxiv.org/content/10.64898/2026.08.28.747902v1?rss=1"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -119,7 +120,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 140,
+  "count": 141,
   "target": 22
  },
  "cooldowns": {

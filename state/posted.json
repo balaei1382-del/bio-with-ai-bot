@@ -92,7 +92,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.28.747833v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747487v1?rss=1",
   "https://careers.telli.com/",
-  "https://krebsonsecurity.com/2026/09/fbi-probes-service-selling-153m-drivers-licenses/"
+  "https://krebsonsecurity.com/2026/09/fbi-probes-service-selling-153m-drivers-licenses/",
+  "https://claude.com/check-content"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -114,7 +115,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 135,
+  "count": 136,
   "target": 22
  },
  "cooldowns": {

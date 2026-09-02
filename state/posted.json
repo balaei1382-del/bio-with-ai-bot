@@ -85,7 +85,8 @@
   "https://www.baseten.co/blog/the-efficient-frontier-of-llm-inference/",
   "https://lws.io/blog/my-local-model-setup/",
   "https://openai.com/index/path-to-astra/",
-  "https://www.nature.com/articles/s41587-026-03302-1"
+  "https://www.nature.com/articles/s41587-026-03302-1",
+  "https://www.sciencedaily.com/releases/2026/08/260822015208.htm"
  ],
  "topics": [
   "EMBL-EBI Services"
@@ -106,7 +107,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 127,
+  "count": 128,
   "target": 22
  },
  "cooldowns": {

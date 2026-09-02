@@ -81,7 +81,8 @@
   "https://www.nature.com/articles/s41587-026-03217-x",
   "https://www.norirobotics.com/",
   "https://ersc.io/blog/martin-joins-ersc",
-  "https://phys.org/news/2026-09-bacteria-line-buckle-liquid-crystals.html"
+  "https://phys.org/news/2026-09-bacteria-line-buckle-liquid-crystals.html",
+  "https://www.baseten.co/blog/the-efficient-frontier-of-llm-inference/"
  ],
  "topics": [
   "IQ-TREE",
@@ -141,7 +142,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 122,
+  "count": 123,
   "target": 22
  },
  "cooldowns": {

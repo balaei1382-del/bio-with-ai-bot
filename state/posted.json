@@ -92,7 +92,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.28.747833v1?rss=1"
  ],
  "topics": [
-  "EMBL-EBI Services"
+  "EMBL-EBI Services",
+  "Galaxy Training"
  ],
  "model_cache": {
   "gemini_date": "2026-09-02",
@@ -110,7 +111,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 131,
+  "count": 132,
   "target": 22
  },
  "cooldowns": {

@@ -104,7 +104,8 @@
   "EMBL-EBI Services",
   "Galaxy Training",
   "Bioconda",
-  "FastQC"
+  "FastQC",
+  "ColabFold"
  ],
  "model_cache": {
   "gemini_date": "2026-09-03",
@@ -122,7 +123,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 143,
+  "count": 144,
   "target": 22
  },
  "cooldowns": {

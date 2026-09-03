@@ -127,7 +127,8 @@
   "KEGG",
   "Reactome",
   "Ensembl",
-  "Seurat"
+  "Seurat",
+  "Biopython"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -145,7 +146,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 166,
+  "count": 167,
   "target": 22
  },
  "cooldowns": {

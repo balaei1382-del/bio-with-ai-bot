@@ -100,7 +100,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.28.747902v1?rss=1",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014636",
   "https://www.biorxiv.org/content/10.64898/2026.08.28.747885v1?rss=1",
-  "https://martinfowler.com/rachels-ramblings/code-review.html"
+  "https://martinfowler.com/rachels-ramblings/code-review.html",
+  "https://www.nature.com/articles/d41586-026-02597-z"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -125,7 +126,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 146,
+  "count": 147,
   "target": 22
  },
  "cooldowns": {

@@ -117,7 +117,8 @@
   "FastQC",
   "ColabFold",
   "GTEx",
-  "KEGG"
+  "KEGG",
+  "Reactome"
  ],
  "model_cache": {
   "gemini_date": "2026-09-03",
@@ -135,7 +136,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 156,
+  "count": 157,
   "target": 22
  },
  "cooldowns": {

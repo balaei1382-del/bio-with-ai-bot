@@ -124,7 +124,8 @@
   "ColabFold",
   "GTEx",
   "KEGG",
-  "Reactome"
+  "Reactome",
+  "Ensembl"
  ],
  "model_cache": {
   "gemini_date": "2026-09-03",
@@ -142,7 +143,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 163,
+  "count": 164,
   "target": 22
  },
  "cooldowns": {

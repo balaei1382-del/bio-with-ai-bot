@@ -103,7 +103,8 @@
   "https://martinfowler.com/rachels-ramblings/code-review.html",
   "https://www.nature.com/articles/d41586-026-02597-z",
   "https://secondthoughts.ai/p/14-reasons-robotics-is-hard",
-  "https://nango.dev/careers"
+  "https://nango.dev/careers",
+  "https://phys.org/news/2026-09-biology-mathematics-hidden-symmetries-widely.html"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -129,7 +130,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 150,
+  "count": 151,
   "target": 22
  },
  "cooldowns": {

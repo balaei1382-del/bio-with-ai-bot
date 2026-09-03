@@ -111,7 +111,8 @@
   "https://www.nature.com/articles/d41586-026-02761-5",
   "https://news.ycombinator.com/item?id=49543530",
   "https://status.claude.com/incidents/461yvfrzpwtt",
-  "https://phys.org/news/2026-09-bacterial-elements-gene.html"
+  "https://phys.org/news/2026-09-bacterial-elements-gene.html",
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014423"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -139,7 +140,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 160,
+  "count": 161,
   "target": 22
  },
  "cooldowns": {

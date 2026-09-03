@@ -109,7 +109,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014730",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014673",
   "https://www.nature.com/articles/d41586-026-02761-5",
-  "https://news.ycombinator.com/item?id=49543530"
+  "https://news.ycombinator.com/item?id=49543530",
+  "https://status.claude.com/incidents/461yvfrzpwtt"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -137,7 +138,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 158,
+  "count": 159,
   "target": 22
  },
  "cooldowns": {

@@ -114,7 +114,8 @@
   "https://phys.org/news/2026-09-bacterial-elements-gene.html",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014423",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747296v1?rss=1",
-  "https://www.biorxiv.org/content/10.64898/2026.08.30.748149v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.30.748149v1?rss=1",
+  "https://www.nature.com/articles/s41592-026-03196-6"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -128,7 +129,7 @@
   "Ensembl"
  ],
  "model_cache": {
-  "gemini_date": "2026-09-03",
+  "gemini_date": "2026-09-04",
   "gemini_models": [
    "gemini-3.8-flash",
    "gemini-3.7-flash",
@@ -143,7 +144,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 164,
+  "count": 165,
   "target": 22
  },
  "cooldowns": {

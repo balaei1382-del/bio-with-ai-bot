@@ -118,7 +118,8 @@
   "https://www.nature.com/articles/s41592-026-03196-6",
   "https://openai.com/index/gpt-6-astra/",
   "https://www.biorxiv.org/content/10.64898/2026.08.30.748098v1?rss=1",
-  "https://www.biorxiv.org/content/10.64898/2026.08.31.748297v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.31.748297v1?rss=1",
+  "https://www.sciencedaily.com/releases/2026/08/260826055500.htm"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -151,12 +152,13 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 172,
+  "count": 173,
   "target": 22
  },
  "cooldowns": {
   "gemini:mRx7Ow|gemini-3.7-flash": "2026-08-30T05:31:13.801152+00:00",
   "gemini:mRx7Ow|gemini-3.6-flash": "2026-08-31T07:31:26.071647+00:00",
-  "gemini:mRx7Ow|gemini-3.5-flash": "2026-09-01T06:31:23.373369+00:00"
+  "gemini:mRx7Ow|gemini-3.5-flash": "2026-09-01T06:31:23.373369+00:00",
+  "gemini:mRx7Ow|gemini-3.8-flash": "2026-09-04T06:31:37.384024+00:00"
  }
 }

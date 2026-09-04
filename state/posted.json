@@ -120,7 +120,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.30.748098v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.31.748297v1?rss=1",
   "https://www.sciencedaily.com/releases/2026/08/260826055500.htm",
-  "https://www.biorxiv.org/content/10.64898/2026.08.30.748055v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.30.748055v1?rss=1",
+  "https://computer.rip/2026-06-14-hookswitch-to-grave.html"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -155,7 +156,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 176,
+  "count": 177,
   "target": 22
  },
  "cooldowns": {

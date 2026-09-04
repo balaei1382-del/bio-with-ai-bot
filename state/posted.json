@@ -115,7 +115,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014423",
   "https://www.biorxiv.org/content/10.64898/2026.08.27.747296v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.30.748149v1?rss=1",
-  "https://www.nature.com/articles/s41592-026-03196-6"
+  "https://www.nature.com/articles/s41592-026-03196-6",
+  "https://openai.com/index/gpt-6-astra/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -147,7 +148,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 168,
+  "count": 169,
   "target": 22
  },
  "cooldowns": {

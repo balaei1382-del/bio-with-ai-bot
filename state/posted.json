@@ -117,7 +117,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.30.748149v1?rss=1",
   "https://www.nature.com/articles/s41592-026-03196-6",
   "https://openai.com/index/gpt-6-astra/",
-  "https://www.biorxiv.org/content/10.64898/2026.08.30.748098v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.30.748098v1?rss=1",
+  "https://www.biorxiv.org/content/10.64898/2026.08.31.748297v1?rss=1"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -149,7 +150,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 170,
+  "count": 171,
   "target": 22
  },
  "cooldowns": {

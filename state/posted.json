@@ -128,7 +128,8 @@
   "Reactome",
   "Ensembl",
   "Seurat",
-  "Biopython"
+  "Biopython",
+  "GATK"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -146,7 +147,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 167,
+  "count": 168,
   "target": 22
  },
  "cooldowns": {

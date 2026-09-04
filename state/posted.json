@@ -146,7 +146,8 @@
   "Galaxy Project",
   "IQ-TREE",
   "NCBI BLAST",
-  "InterPro"
+  "InterPro",
+  "MG-RAST"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -164,7 +165,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 185,
+  "count": 186,
   "target": 22
  },
  "cooldowns": {

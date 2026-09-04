@@ -141,7 +141,8 @@
   "antiSMASH",
   "Samtools",
   "Galaxy Project",
-  "IQ-TREE"
+  "IQ-TREE",
+  "NCBI BLAST"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -159,7 +160,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 180,
+  "count": 181,
   "target": 22
  },
  "cooldowns": {

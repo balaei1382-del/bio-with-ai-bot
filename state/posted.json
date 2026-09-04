@@ -127,7 +127,8 @@
   "https://jestoph.com/2026/09/04/jane-street-challenge.html",
   "https://www.nature.com/articles/d41586-026-02801-0",
   "https://torrentfreak.com/adult-film-producer-unmasks-prolific-john-doe-torrent-pirate-as-meta-executive/",
-  "https://www.biorxiv.org/content/10.64898/2026.08.29.748036v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.29.748036v1?rss=1",
+  "https://www.statichost.eu/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -168,7 +169,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 189,
+  "count": 190,
   "target": 22
  },
  "cooldowns": {

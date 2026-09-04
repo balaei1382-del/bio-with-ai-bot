@@ -136,7 +136,8 @@
   "Biopython",
   "GATK",
   "Snakemake",
-  "antiSMASH"
+  "antiSMASH",
+  "Samtools"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -154,7 +155,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 175,
+  "count": 176,
   "target": 22
  },
  "cooldowns": {

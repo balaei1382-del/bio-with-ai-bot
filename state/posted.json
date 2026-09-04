@@ -128,7 +128,8 @@
   "https://www.nature.com/articles/d41586-026-02801-0",
   "https://torrentfreak.com/adult-film-producer-unmasks-prolific-john-doe-torrent-pirate-as-meta-executive/",
   "https://www.biorxiv.org/content/10.64898/2026.08.29.748036v1?rss=1",
-  "https://www.statichost.eu/"
+  "https://www.statichost.eu/",
+  "https://rietta.com/blog/ruby-on-rails-cve-exploited-hours-after-patch/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -169,7 +170,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 190,
+  "count": 191,
   "target": 22
  },
  "cooldowns": {

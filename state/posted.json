@@ -122,7 +122,8 @@
   "https://www.sciencedaily.com/releases/2026/08/260826055500.htm",
   "https://www.biorxiv.org/content/10.64898/2026.08.30.748055v1?rss=1",
   "https://computer.rip/2026-06-14-hookswitch-to-grave.html",
-  "https://armature.tech/blog/which-tools-coding-agents-install"
+  "https://armature.tech/blog/which-tools-coding-agents-install",
+  "https://www.nature.com/articles/s41587-026-03287-x"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -160,7 +161,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 181,
+  "count": 182,
   "target": 22
  },
  "cooldowns": {

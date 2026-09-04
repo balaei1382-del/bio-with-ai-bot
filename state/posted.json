@@ -135,7 +135,8 @@
   "Seurat",
   "Biopython",
   "GATK",
-  "Snakemake"
+  "Snakemake",
+  "antiSMASH"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -153,7 +154,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 174,
+  "count": 175,
   "target": 22
  },
  "cooldowns": {

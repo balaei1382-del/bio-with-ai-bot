@@ -138,7 +138,8 @@
   "GATK",
   "Snakemake",
   "antiSMASH",
-  "Samtools"
+  "Samtools",
+  "Galaxy Project"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -156,7 +157,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 177,
+  "count": 178,
   "target": 22
  },
  "cooldowns": {

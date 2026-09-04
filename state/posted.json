@@ -147,7 +147,8 @@
   "IQ-TREE",
   "NCBI BLAST",
   "InterPro",
-  "MG-RAST"
+  "MG-RAST",
+  "Cytoscape"
  ],
  "model_cache": {
   "gemini_date": "2026-09-04",
@@ -165,7 +166,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 186,
+  "count": 187,
   "target": 22
  },
  "cooldowns": {

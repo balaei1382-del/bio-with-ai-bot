@@ -153,7 +153,8 @@
   "NCBI BLAST",
   "InterPro",
   "MG-RAST",
-  "Cytoscape"
+  "Cytoscape",
+  "DESeq2"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -171,7 +172,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 192,
+  "count": 193,
   "target": 22
  },
  "cooldowns": {

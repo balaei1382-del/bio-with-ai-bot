@@ -167,7 +167,8 @@
   "Prokka",
   "BWA",
   "PyMOL",
-  "DAVID"
+  "DAVID",
+  "Nextflow"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -185,7 +186,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 206,
+  "count": 207,
   "target": 22
  },
  "cooldowns": {

@@ -133,7 +133,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.31.748303v1?rss=1",
   "https://www.jeremykun.com/2026/09/04/updates-on-heir-homomorphic-encryption/",
   "https://engineering.atspotify.com/2026/9/portal-by-spotify-cut-my-claude-code-token-usage-by-90",
-  "https://www.coderabbit.ai/blog/gpt-6-astra-code-review-evaluation"
+  "https://www.coderabbit.ai/blog/gpt-6-astra-code-review-evaluation",
+  "https://news.gallup.com/poll/713933/record-high-say-government-corruption-widespread.aspx"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -179,7 +180,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 200,
+  "count": 201,
   "target": 22
  },
  "cooldowns": {

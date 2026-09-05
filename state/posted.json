@@ -173,10 +173,11 @@
   "PyMOL",
   "DAVID",
   "Nextflow",
-  "RCSB PDB"
+  "RCSB PDB",
+  "Scanpy"
  ],
  "model_cache": {
-  "gemini_date": "2026-09-05",
+  "gemini_date": "2026-09-06",
   "gemini_models": [
    "gemini-3.8-flash",
    "gemini-3.7-flash",
@@ -191,7 +192,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 212,
+  "count": 213,
   "target": 22
  },
  "cooldowns": {

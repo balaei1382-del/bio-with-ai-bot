@@ -154,7 +154,8 @@
   "InterPro",
   "MG-RAST",
   "Cytoscape",
-  "DESeq2"
+  "DESeq2",
+  "STRING"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -172,7 +173,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 193,
+  "count": 194,
   "target": 22
  },
  "cooldowns": {

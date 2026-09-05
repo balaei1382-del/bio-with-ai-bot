@@ -131,7 +131,8 @@
   "https://www.statichost.eu/",
   "https://rietta.com/blog/ruby-on-rails-cve-exploited-hours-after-patch/",
   "https://www.biorxiv.org/content/10.64898/2026.08.31.748303v1?rss=1",
-  "https://www.jeremykun.com/2026/09/04/updates-on-heir-homomorphic-encryption/"
+  "https://www.jeremykun.com/2026/09/04/updates-on-heir-homomorphic-encryption/",
+  "https://engineering.atspotify.com/2026/9/portal-by-spotify-cut-my-claude-code-token-usage-by-90"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -175,7 +176,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 196,
+  "count": 197,
   "target": 22
  },
  "cooldowns": {

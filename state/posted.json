@@ -159,7 +159,8 @@
   "Cytoscape",
   "DESeq2",
   "STRING",
-  "GROMACS"
+  "GROMACS",
+  "QIIME 2"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -177,7 +178,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 198,
+  "count": 199,
   "target": 22
  },
  "cooldowns": {

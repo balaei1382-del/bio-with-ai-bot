@@ -166,7 +166,8 @@
   "QIIME 2",
   "Prokka",
   "BWA",
-  "PyMOL"
+  "PyMOL",
+  "DAVID"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -184,7 +185,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 205,
+  "count": 206,
   "target": 22
  },
  "cooldowns": {

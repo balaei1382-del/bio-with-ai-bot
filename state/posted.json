@@ -160,7 +160,8 @@
   "DESeq2",
   "STRING",
   "GROMACS",
-  "QIIME 2"
+  "QIIME 2",
+  "Prokka"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -178,7 +179,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 199,
+  "count": 200,
   "target": 22
  },
  "cooldowns": {

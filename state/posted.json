@@ -163,7 +163,8 @@
   "GROMACS",
   "QIIME 2",
   "Prokka",
-  "BWA"
+  "BWA",
+  "PyMOL"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -181,7 +182,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 202,
+  "count": 203,
   "target": 22
  },
  "cooldowns": {

@@ -138,7 +138,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.09.02.748815v1?rss=1",
   "https://www.biorxiv.org/content/10.64898/2026.08.31.748296v1?rss=1",
   "https://www.pbs.org/newshour/science/global-warming-will-exceed-1-5-degree-limit-un-says-in-report-that-maps-path-back-below-danger-zone",
-  "https://www.nature.com/articles/s41587-026-03267-1"
+  "https://www.nature.com/articles/s41587-026-03267-1",
+  "https://packagemain.tech/p/gitignore-everything-by-default"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -189,7 +190,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 210,
+  "count": 211,
   "target": 22
  },
  "cooldowns": {

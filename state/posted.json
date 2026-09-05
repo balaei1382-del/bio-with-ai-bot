@@ -174,7 +174,8 @@
   "DAVID",
   "Nextflow",
   "RCSB PDB",
-  "Scanpy"
+  "Scanpy",
+  "PubMed"
  ],
  "model_cache": {
   "gemini_date": "2026-09-06",
@@ -192,7 +193,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 213,
+  "count": 214,
   "target": 22
  },
  "cooldowns": {

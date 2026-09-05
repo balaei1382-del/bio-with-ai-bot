@@ -156,7 +156,8 @@
   "MG-RAST",
   "Cytoscape",
   "DESeq2",
-  "STRING"
+  "STRING",
+  "GROMACS"
  ],
  "model_cache": {
   "gemini_date": "2026-09-05",
@@ -174,13 +175,14 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 195,
+  "count": 196,
   "target": 22
  },
  "cooldowns": {
   "gemini:mRx7Ow|gemini-3.7-flash": "2026-08-30T05:31:13.801152+00:00",
   "gemini:mRx7Ow|gemini-3.6-flash": "2026-08-31T07:31:26.071647+00:00",
   "gemini:mRx7Ow|gemini-3.5-flash": "2026-09-01T06:31:23.373369+00:00",
-  "gemini:mRx7Ow|gemini-3.8-flash": "2026-09-04T06:31:37.384024+00:00"
+  "gemini:mRx7Ow|gemini-3.8-flash": "2026-09-04T06:31:37.384024+00:00",
+  "gemini:gA9xxA|gemini-3.8-flash": "2026-09-05T05:31:29.380215+00:00"
  }
 }

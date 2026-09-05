@@ -130,7 +130,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.08.29.748036v1?rss=1",
   "https://www.statichost.eu/",
   "https://rietta.com/blog/ruby-on-rails-cve-exploited-hours-after-patch/",
-  "https://www.biorxiv.org/content/10.64898/2026.08.31.748303v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.31.748303v1?rss=1",
+  "https://www.jeremykun.com/2026/09/04/updates-on-heir-homomorphic-encryption/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -173,7 +174,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 194,
+  "count": 195,
   "target": 22
  },
  "cooldowns": {

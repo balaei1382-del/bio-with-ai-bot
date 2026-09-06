@@ -143,7 +143,8 @@
   "https://feld.com/archives/2026/09/the-real-luxuries-in-life/",
   "https://phys.org/news/2026-09-pets-zoos-students-animal-husbandry.html",
   "https://sofiabelen.github.io/projects/visualizing-rusts-vtables-how-dyn-trait-works-in-memory/",
-  "https://www.nature.com/articles/s41592-026-03234-3"
+  "https://www.nature.com/articles/s41592-026-03234-3",
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014699"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -196,7 +197,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 217,
+  "count": 218,
   "target": 22
  },
  "cooldowns": {

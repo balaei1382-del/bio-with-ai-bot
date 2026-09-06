@@ -186,7 +186,8 @@
   "Scanpy",
   "PubMed",
   "AlphaFold DB",
-  "ChEMBL"
+  "ChEMBL",
+  "BUSCO"
  ],
  "model_cache": {
   "gemini_date": "2026-09-06",
@@ -204,7 +205,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 225,
+  "count": 226,
   "target": 22
  },
  "cooldowns": {

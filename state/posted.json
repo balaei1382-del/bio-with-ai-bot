@@ -145,7 +145,8 @@
   "https://sofiabelen.github.io/projects/visualizing-rusts-vtables-how-dyn-trait-works-in-memory/",
   "https://www.nature.com/articles/s41592-026-03234-3",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014699",
-  "https://www.space.com/space-exploration/launches-spacecraft/isar-aerospace-second-launch-norway-andoya-spaceport-spectrum-rocket"
+  "https://www.space.com/space-exploration/launches-spacecraft/isar-aerospace-second-launch-norway-andoya-spaceport-spectrum-rocket",
+  "https://phys.org/news/2026-09-molecular-snapshots-reveal-bacteria-outer.html"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -198,7 +199,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 219,
+  "count": 220,
   "target": 22
  },
  "cooldowns": {

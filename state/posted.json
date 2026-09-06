@@ -156,7 +156,8 @@
   "https://beige.party/@intransitivelie/117057396732763183",
   "https://www.nature.com/articles/s41586-026-10962-1",
   "https://www.nature.com/articles/d41586-026-02740-w",
-  "https://openai.com/index/an-alien-mind/"
+  "https://openai.com/index/an-alien-mind/",
+  "https://www.sciencedaily.com/releases/2026/08/260827010517.htm"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -216,7 +217,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 237,
+  "count": 238,
   "target": 22
  },
  "cooldowns": {

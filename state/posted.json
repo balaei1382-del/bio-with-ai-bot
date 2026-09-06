@@ -185,7 +185,8 @@
   "RCSB PDB",
   "Scanpy",
   "PubMed",
-  "AlphaFold DB"
+  "AlphaFold DB",
+  "ChEMBL"
  ],
  "model_cache": {
   "gemini_date": "2026-09-06",
@@ -203,7 +204,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 224,
+  "count": 225,
   "target": 22
  },
  "cooldowns": {

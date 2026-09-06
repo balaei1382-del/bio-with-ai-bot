@@ -155,7 +155,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014707",
   "https://beige.party/@intransitivelie/117057396732763183",
   "https://www.nature.com/articles/s41586-026-10962-1",
-  "https://www.nature.com/articles/d41586-026-02740-w"
+  "https://www.nature.com/articles/d41586-026-02740-w",
+  "https://openai.com/index/an-alien-mind/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -200,7 +201,7 @@
   "UniProt"
  ],
  "model_cache": {
-  "gemini_date": "2026-09-06",
+  "gemini_date": "2026-09-07",
   "gemini_models": [
    "gemini-3.8-flash",
    "gemini-3.7-flash",
@@ -215,7 +216,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 236,
+  "count": 237,
   "target": 22
  },
  "cooldowns": {

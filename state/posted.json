@@ -147,7 +147,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014699",
   "https://www.space.com/space-exploration/launches-spacecraft/isar-aerospace-second-launch-norway-andoya-spaceport-spectrum-rocket",
   "https://phys.org/news/2026-09-molecular-snapshots-reveal-bacteria-outer.html",
-  "https://www.biorxiv.org/content/10.64898/2026.08.31.748429v1?rss=1"
+  "https://www.biorxiv.org/content/10.64898/2026.08.31.748429v1?rss=1",
+  "https://devquasar.com/hardware/the-60-gaming-pc-amd-bc-250/"
  ],
  "topics": [
   "EMBL-EBI Services",
@@ -201,7 +202,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 222,
+  "count": 223,
   "target": 22
  },
  "cooldowns": {

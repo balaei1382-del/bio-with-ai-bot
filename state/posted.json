@@ -179,7 +179,8 @@
   "NCBI BLAST",
   "NCBI",
   "UCSC Genome Browser",
-  "QIIME 2"
+  "QIIME 2",
+  "MG-RAST"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -197,7 +198,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 258,
+  "count": 259,
   "target": 22
  },
  "cooldowns": {

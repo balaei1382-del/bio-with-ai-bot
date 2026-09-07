@@ -176,7 +176,8 @@
   "Bioconda",
   "Ensembl",
   "NCBI BLAST",
-  "NCBI"
+  "NCBI",
+  "UCSC Genome Browser"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -194,7 +195,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 255,
+  "count": 256,
   "target": 22
  },
  "cooldowns": {

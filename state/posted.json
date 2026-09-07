@@ -173,7 +173,8 @@
   "IQ-TREE",
   "Prokka",
   "Bioconda",
-  "Ensembl"
+  "Ensembl",
+  "NCBI BLAST"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -191,7 +192,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 252,
+  "count": 253,
   "target": 22
  },
  "cooldowns": {

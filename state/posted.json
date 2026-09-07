@@ -170,7 +170,8 @@
   "InterPro",
   "Cytoscape",
   "IQ-TREE",
-  "Prokka"
+  "Prokka",
+  "Bioconda"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -188,7 +189,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 249,
+  "count": 250,
   "target": 22
  },
  "cooldowns": {

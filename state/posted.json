@@ -165,7 +165,8 @@
  "topics": [
   "DESeq2",
   "InterPro",
-  "Cytoscape"
+  "Cytoscape",
+  "IQ-TREE"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -183,7 +184,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 244,
+  "count": 245,
   "target": 22
  },
  "cooldowns": {

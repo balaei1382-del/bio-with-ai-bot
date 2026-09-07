@@ -183,7 +183,8 @@
   "MG-RAST",
   "KEGG",
   "Biopython",
-  "Nextflow"
+  "Nextflow",
+  "RCSB PDB"
  ],
  "model_cache": {
   "gemini_date": "2026-09-08",
@@ -201,7 +202,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 262,
+  "count": 263,
   "target": 22
  },
  "cooldowns": {

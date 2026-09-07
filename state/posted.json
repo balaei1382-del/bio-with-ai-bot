@@ -160,7 +160,8 @@
   "https://www.sciencedaily.com/releases/2026/08/260827010517.htm",
   "https://phys.org/news/2026-09-virus-particles-enable-gene-tracking.html",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014748",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014713"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014713",
+  "https://www.nature.com/articles/s41587-026-03291-1"
  ],
  "topics": [
   "DESeq2",
@@ -185,7 +186,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 246,
+  "count": 247,
   "target": 22
  },
  "cooldowns": {

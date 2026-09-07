@@ -157,7 +157,8 @@
   "https://www.nature.com/articles/s41586-026-10962-1",
   "https://www.nature.com/articles/d41586-026-02740-w",
   "https://openai.com/index/an-alien-mind/",
-  "https://www.sciencedaily.com/releases/2026/08/260827010517.htm"
+  "https://www.sciencedaily.com/releases/2026/08/260827010517.htm",
+  "https://phys.org/news/2026-09-virus-particles-enable-gene-tracking.html"
  ],
  "topics": [
   "DESeq2"
@@ -178,7 +179,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 239,
+  "count": 240,
   "target": 22
  },
  "cooldowns": {

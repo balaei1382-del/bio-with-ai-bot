@@ -162,7 +162,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014748",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014713",
   "https://www.nature.com/articles/s41587-026-03291-1",
-  "https://grapheneos.social/@GrapheneOS/117225539756835649"
+  "https://grapheneos.social/@GrapheneOS/117225539756835649",
+  "https://rfd.shared.oxide.computer/rfd/0301"
  ],
  "topics": [
   "DESeq2",
@@ -187,7 +188,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 248,
+  "count": 249,
   "target": 22
  },
  "cooldowns": {

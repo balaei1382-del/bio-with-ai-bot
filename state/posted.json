@@ -171,7 +171,8 @@
   "Cytoscape",
   "IQ-TREE",
   "Prokka",
-  "Bioconda"
+  "Bioconda",
+  "Ensembl"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -189,7 +190,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 250,
+  "count": 251,
   "target": 22
  },
  "cooldowns": {

@@ -162,7 +162,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014748"
  ],
  "topics": [
-  "DESeq2"
+  "DESeq2",
+  "InterPro"
  ],
  "model_cache": {
   "gemini_date": "2026-09-07",
@@ -180,7 +181,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 241,
+  "count": 242,
   "target": 22
  },
  "cooldowns": {

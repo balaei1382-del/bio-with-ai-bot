@@ -168,7 +168,8 @@
   "https://academic.oup.com/pnasnexus/article/4/4/pgaf087/8098745?login=false",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014709",
   "https://phys.org/news/2026-09-reconstructed-ancient-protein-bacterial-enzymes.html",
-  "https://www.nature.com/articles/s41587-026-03294-y"
+  "https://www.nature.com/articles/s41587-026-03294-y",
+  "https://mathathonchallenge.com/index.html"
  ],
  "topics": [
   "DESeq2",
@@ -204,7 +205,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 265,
+  "count": 266,
   "target": 22
  },
  "cooldowns": {

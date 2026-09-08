@@ -206,7 +206,8 @@
   "Seurat",
   "GROMACS",
   "antiSMASH",
-  "UniProt"
+  "UniProt",
+  "Galaxy Project"
  ],
  "model_cache": {
   "gemini_date": "2026-09-09",
@@ -224,7 +225,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 285,
+  "count": 286,
   "target": 22
  },
  "cooldowns": {

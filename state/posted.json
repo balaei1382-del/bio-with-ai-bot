@@ -167,7 +167,8 @@
   "https://www.biorxiv.org/content/10.64898/2026.09.03.747733v1?rss=1",
   "https://academic.oup.com/pnasnexus/article/4/4/pgaf087/8098745?login=false",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014709",
-  "https://phys.org/news/2026-09-reconstructed-ancient-protein-bacterial-enzymes.html"
+  "https://phys.org/news/2026-09-reconstructed-ancient-protein-bacterial-enzymes.html",
+  "https://www.nature.com/articles/s41587-026-03294-y"
  ],
  "topics": [
   "DESeq2",
@@ -203,7 +204,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 264,
+  "count": 265,
   "target": 22
  },
  "cooldowns": {

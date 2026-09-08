@@ -173,7 +173,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014771",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014637",
   "https://leaflet.pub/p/did:plc:yhgc5rlqhoezrx6fbawajxlh/3muwrqenzfk2n",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014657"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014657",
+  "https://phys.org/news/2026-09-views-physician-veterinarian-barriers-pet.html"
  ],
  "topics": [
   "DESeq2",
@@ -213,7 +214,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 274,
+  "count": 275,
   "target": 22
  },
  "cooldowns": {

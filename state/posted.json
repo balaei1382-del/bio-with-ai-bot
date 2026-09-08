@@ -171,7 +171,8 @@
   "https://www.nature.com/articles/s41587-026-03294-y",
   "https://mathathonchallenge.com/index.html",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014771",
-  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014637"
+  "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014637",
+  "https://leaflet.pub/p/did:plc:yhgc5rlqhoezrx6fbawajxlh/3muwrqenzfk2n"
  ],
  "topics": [
   "DESeq2",
@@ -209,7 +210,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 270,
+  "count": 271,
   "target": 22
  },
  "cooldowns": {

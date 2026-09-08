@@ -179,7 +179,8 @@
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014698",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014746",
   "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1014543",
-  "https://www.nature.com/articles/d41586-026-02812-x"
+  "https://www.nature.com/articles/d41586-026-02812-x",
+  "https://www.biorxiv.org/content/10.64898/2026.09.02.748406v1?rss=1"
  ],
  "topics": [
   "DESeq2",
@@ -221,7 +222,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 282,
+  "count": 283,
   "target": 22
  },
  "cooldowns": {

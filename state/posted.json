@@ -188,7 +188,8 @@
   "Biopython",
   "Nextflow",
   "RCSB PDB",
-  "Scanpy"
+  "Scanpy",
+  "BUSCO"
  ],
  "model_cache": {
   "gemini_date": "2026-09-08",
@@ -206,7 +207,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 267,
+  "count": 268,
   "target": 22
  },
  "cooldowns": {

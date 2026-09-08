@@ -193,7 +193,8 @@
   "Nextflow",
   "RCSB PDB",
   "Scanpy",
-  "BUSCO"
+  "BUSCO",
+  "Reactome"
  ],
  "model_cache": {
   "gemini_date": "2026-09-08",
@@ -211,7 +212,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 272,
+  "count": 273,
   "target": 22
  },
  "cooldowns": {

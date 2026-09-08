@@ -187,7 +187,8 @@
   "KEGG",
   "Biopython",
   "Nextflow",
-  "RCSB PDB"
+  "RCSB PDB",
+  "Scanpy"
  ],
  "model_cache": {
   "gemini_date": "2026-09-08",
@@ -205,7 +206,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 266,
+  "count": 267,
   "target": 22
  },
  "cooldowns": {

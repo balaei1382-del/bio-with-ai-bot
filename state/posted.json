@@ -188,7 +188,8 @@
   "https://gpu-lexer.vercel.app/",
   "https://www.nature.com/articles/s41592-026-03178-8",
   "https://glocq.com/en/blog/20260827/",
-  "https://www.sciencedaily.com/releases/2026/09/260907201603.htm"
+  "https://www.sciencedaily.com/releases/2026/09/260907201603.htm",
+  "https://www.sciencedaily.com/releases/2026/09/260907201605.htm"
  ],
  "topics": [
   "DESeq2",
@@ -233,7 +234,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 294,
+  "count": 295,
   "target": 22
  },
  "cooldowns": {

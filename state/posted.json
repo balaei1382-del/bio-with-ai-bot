@@ -217,7 +217,8 @@
   "UniProt",
   "Galaxy Project",
   "GATK",
-  "PubMed"
+  "PubMed",
+  "PyMOL"
  ],
  "model_cache": {
   "gemini_date": "2026-09-09",
@@ -235,7 +236,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 296,
+  "count": 297,
   "target": 22
  },
  "cooldowns": {

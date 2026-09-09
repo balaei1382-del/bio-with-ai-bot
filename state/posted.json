@@ -182,7 +182,8 @@
   "https://www.nature.com/articles/d41586-026-02812-x",
   "https://www.biorxiv.org/content/10.64898/2026.09.02.748406v1?rss=1",
   "https://openai.com/index/navier-stokes-solution/",
-  "https://www.nature.com/articles/d41586-026-02796-8"
+  "https://www.nature.com/articles/d41586-026-02796-8",
+  "https://www.biorxiv.org/content/10.64898/2026.09.04.749352v1?rss=1"
  ],
  "topics": [
   "DESeq2",
@@ -227,7 +228,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 288,
+  "count": 289,
   "target": 22
  },
  "cooldowns": {

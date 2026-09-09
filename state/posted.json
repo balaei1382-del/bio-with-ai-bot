@@ -208,7 +208,8 @@
   "GROMACS",
   "antiSMASH",
   "UniProt",
-  "Galaxy Project"
+  "Galaxy Project",
+  "GATK"
  ],
  "model_cache": {
   "gemini_date": "2026-09-09",
@@ -226,7 +227,7 @@
  },
  "today": {
   "date": "2026-08-25",
-  "count": 287,
+  "count": 288,
   "target": 22
  },
  "cooldowns": {
